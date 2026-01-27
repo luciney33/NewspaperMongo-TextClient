@@ -2,16 +2,20 @@ package ui;
 
 import domain.model.NewspaperDTO;
 import domain.service.NewspaperService;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 import java.util.List;
+
+@ApplicationScoped
 public class NewspaperUI {
-    private final NewspaperService newspaperService;
+    private NewspaperService newspaperService;
+    public NewspaperUI() {}
 
-    public NewspaperUI() {
-        this.newspaperService = new NewspaperService();
+    @Inject
+    public NewspaperUI(NewspaperService newspaperService) {
+        this.newspaperService = newspaperService;
     }
-
-
 
     public void getNewspapers() {
         List<NewspaperDTO> newspapers = newspaperService.getAllNewspapers();
@@ -22,18 +26,6 @@ public class NewspaperUI {
             for (NewspaperDTO n : newspapers) {
                 System.out.printf("ID: %s | Nombre: %s%n",
                         n.getId().toString(), n.getName());
-            }
-        }
-    }
-    // 12. Get all Types
-    public void getAllTypes() {
-        List<String> types = newspaperService.getAllTypes();
-        System.out.println("\n📋 ═══════════ TODOS LOS TIPOS ═══════════");
-        if (types.isEmpty()) {
-            System.out.println("No hay tipos registrados.");
-        } else {
-            for (int i = 0; i < types.size(); i++) {
-                System.out.printf("%d. %s%n", i + 1, types.get(i));
             }
         }
     }

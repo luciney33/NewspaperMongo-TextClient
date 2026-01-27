@@ -2,6 +2,7 @@ package dao.repository;
 
 import com.google.gson.Gson;
 import com.mongodb.client.MongoCollection;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.extern.log4j.Log4j2;
 import dao.model.ArticleEntity;
@@ -14,9 +15,14 @@ import static com.mongodb.client.model.Projections.*;
 
 
 @Log4j2
+@ApplicationScoped
 public class ArticleRepositoryImp implements dao.ArticleRepository {
-    private final MongoCollection<Document> collection;
-    private final Gson gson;
+    private MongoCollection<Document> collection;
+    private Gson gson;
+
+    // Constructor sin parámetros para CDI
+    public ArticleRepositoryImp() {
+    }
 
     @Inject
     public ArticleRepositoryImp(MongoCollection<Document> collection, Gson gson) {

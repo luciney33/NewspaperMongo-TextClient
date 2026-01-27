@@ -1,28 +1,30 @@
 package domain.service;
 
-import dao.NewspaperDAO;
+import dao.NewspaperRepository;
 import domain.mappers.MapNewsDtoEntity;
 import domain.model.NewspaperDTO;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 import java.util.List;
 
+@ApplicationScoped
 public class NewspaperService {
-    private final NewspaperDAO newspaperDAO;
-    private final MapNewsDtoEntity mapper;
+    private NewspaperRepository newspaperRepository;
+    private MapNewsDtoEntity mapper;
 
-    public NewspaperService() {
-        this.newspaperDAO = new NewspaperDAO();
+    public NewspaperService() {}
+
+    @Inject
+    public NewspaperService(NewspaperRepository newspaperRepository) {
+        this.newspaperRepository = newspaperRepository;
         this.mapper = new MapNewsDtoEntity();
     }
 
     // 5. Get all Newspapers
     public List<NewspaperDTO> getAllNewspapers() {
-        return mapper.entityListToDtoList(newspaperDAO.findAll());
+        return mapper.entityListToDtoList(newspaperRepository.getAll());
     }
 
-    // 12. Get all Types
-    public List<String> getAllTypes() {
-        return newspaperDAO.getAllTypes();
-    }
 }
 

@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.mongodb.client.MongoCollection;
 import dao.ReadArticleRepository;
 import dao.model.ReadArticleEntity;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.extern.log4j.Log4j2;
 import org.bson.Document;
@@ -11,9 +12,14 @@ import org.bson.Document;
 import java.util.List;
 
 @Log4j2
+@ApplicationScoped
 public class ReadArticleRepositoryImp implements ReadArticleRepository {
-    private final MongoCollection<Document> collection;
-    private final Gson gson;
+    private MongoCollection<Document> collection;
+    private Gson gson;
+
+    // Constructor sin parámetros para CDI
+    public ReadArticleRepositoryImp() {
+    }
 
     @Inject
     public ReadArticleRepositoryImp(MongoCollection<Document> collection, Gson gson) {

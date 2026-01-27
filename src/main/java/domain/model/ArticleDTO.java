@@ -13,7 +13,7 @@ import java.util.List;
 public class ArticleDTO {
     private String description;
     private int nPaperId;
-    private TypeDTO type;
+    private String type;
     private double avgRating;
 
     public String toString() {
@@ -21,7 +21,7 @@ public class ArticleDTO {
         builder.append("\n----- Articles -----\n")
                 .append(" Description : ").append(description).append("\n")
                 .append(" Newspaper : ").append(nPaperId).append("\n")
-                .append(" Type : ").append(type.getName()).append("\n")
+                .append(" Type : ").append(type).append("\n")
                 .append(" Avg Rating : ").append(avgRating).append("\n")
                 .append("----------------\n");
         return builder.toString();

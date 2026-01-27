@@ -5,14 +5,20 @@ import com.mongodb.client.MongoCollection;
 import dao.ReaderRepository;
 import dao.model.CredentialEntity;
 import dao.model.ReaderEntity;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.bson.Document;
 
 import java.util.List;
 
+@ApplicationScoped
 public class ReaderRepositoryImp implements ReaderRepository {
-    private final MongoCollection<Document> collection;
-    private final Gson gson;
+    private MongoCollection<Document> collection;
+    private Gson gson;
+
+    // Constructor sin parámetros para CDI
+    public ReaderRepositoryImp() {
+    }
 
     @Inject
     public ReaderRepositoryImp(MongoCollection<Document> collection, Gson gson) {

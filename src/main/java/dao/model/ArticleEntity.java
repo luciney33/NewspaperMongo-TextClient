@@ -12,7 +12,7 @@ import java.util.List;
 public class  ArticleEntity {
     private String description;
 
-    private TypeEntity type;
+    private String type;
 
     @Singular("readArticle")
     private List<ReadArticleEntity> readarticle = new ArrayList<>();

@@ -12,18 +12,14 @@ public class MapArticleDtoEntity {
         return new ArticleDTO(
                 entity.getDescription(),
                 0,
-                new TypeDTO(entity.getType().getName()),
+                entity.getType(),
                 0);
     }
 
     public ArticleEntity toEntity(ArticleDTO dto) {
-        TypeEntity typeEntity = TypeEntity.builder()
-                .name(dto.getDescription())
-                .build();
-
         return ArticleEntity.builder()
                 .description(dto.getDescription())
-                .type(typeEntity)
+                .type(dto.getType())
                 .build();
     }
 

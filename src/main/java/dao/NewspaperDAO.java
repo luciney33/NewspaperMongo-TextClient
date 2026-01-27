@@ -116,7 +116,7 @@ public class NewspaperDAO {
         for (NewspaperEntity newspaper : findAll()) {
             for (ArticleEntity article : newspaper.getArticles()) {
                 if (!types.contains(article.getType())) {
-                    types.add(article.getType().getName());
+                    types.add(article.getType());
                 }
             }
         }

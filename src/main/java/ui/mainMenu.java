@@ -103,7 +103,7 @@ public class mainMenu {
 //                        articleUI.deleteRating();
                         break;
                     case 12:
-                        newspaperUI.getAllTypes();
+                        newspaperUI.getNewspapers();
                         break;
 //                    case 13:
 //                        readerUI.addNewReaderCredentials();
