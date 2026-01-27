@@ -1,11 +1,12 @@
 package util;
 
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-
+@ApplicationScoped
 public class DBconnection {
     private Configuration conf;
 

@@ -1,7 +1,7 @@
 package ui;
 
-import org.example.dao.model.NewspaperEntity;
-import org.example.domain.service.NewspaperService;
+import domain.model.NewspaperDTO;
+import domain.service.NewspaperService;
 
 import java.util.List;
 public class NewspaperUI {
@@ -14,14 +14,14 @@ public class NewspaperUI {
 
 
     public void getNewspapers() {
-        List<NewspaperEntity> newspapers = newspaperService.getAllNewspapers();
+        List<NewspaperDTO> newspapers = newspaperService.getAllNewspapers();
         System.out.println("\n📰 ═══════════ TODOS LOS PERIÓDICOS ═══════════");
         if (newspapers.isEmpty()) {
             System.out.println("No hay periódicos registrados.");
         } else {
-            for (NewspaperEntity n : newspapers) {
-                System.out.printf("ID: %s | Nombre: %s | Artículos: %d%n",
-                        n.get_id().toString(), n.getName(), n.getArticles().size());
+            for (NewspaperDTO n : newspapers) {
+                System.out.printf("ID: %s | Nombre: %s%n",
+                        n.getId().toString(), n.getName());
             }
         }
     }

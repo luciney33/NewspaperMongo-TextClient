@@ -4,12 +4,14 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import org.bson.Document;
-
+@ApplicationScoped
 public class MongoDBConnection {
     private static MongoClient mongoClient;
     private static MongoDatabase database;
-
+    @Inject
     private MongoDBConnection(MongoClient mongoClient, MongoDatabase database) {
         this.mongoClient = mongoClient;
         this.database = database;

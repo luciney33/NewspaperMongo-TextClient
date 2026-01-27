@@ -7,6 +7,7 @@ import dao.model.NewspaperEntity;
 import jakarta.inject.Inject;
 import org.bson.Document;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class NewspaperRepositoryImp implements NewspaperRepository {
@@ -20,7 +21,16 @@ public class NewspaperRepositoryImp implements NewspaperRepository {
 
     @Override
     public List<NewspaperEntity> getAll() {
+        List<NewspaperEntity> newspapersList = new ArrayList<>();
 
-        return List.of();
+        List<Document> documents = collection.find()
+                .into(new ArrayList<>());
+
+        for (Document document : documents) {
+            NewspaperEntity newspaper = gson.fromJson(document.toJson(), NewspaperEntity.class);
+            newspapersList.add(newspaper);
+        }
+
+        return newspapersList;
     }
 }

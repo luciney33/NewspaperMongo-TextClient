@@ -1,6 +1,7 @@
 package domain.service;
 
 import com.google.gson.Gson;
+import domain.model.ReadArticleDTO;
 import org.bson.Document;
 import dao.NewspaperDAO;
 import dao.ReaderDAO;
@@ -27,16 +28,16 @@ public class ArticleService {
         List<ArticleDTO> articles = new ArrayList<>();
         List<NewspaperEntity> newspapers = newspaperDAO.findAll();
 
-        for (NewspaperEntity newspaper : newspapers) {
-            for (ArticleEntity article : newspaper.getArticles()) {
-                double avgRating = calculateAvgRating(article);
-                articles.add(new ArticleDTO(
-                    article.getDescription(),
-                    article.getType(),
-                    newspaper.getId().toString(),
-                    avgRating));
-            }
-        }
+//        for (NewspaperEntity newspaper : newspapers) {
+//            for (ArticleEntity article : newspaper.getArticles()) {
+//                double avgRating = calculateAvgRating(article);
+//                articles.add(new ArticleDTO(
+//                    article.getDescription(),
+//                    article.getType(),
+//                    newspaper.getId().toString(),
+//                    avgRating));
+//            }
+//        }
         return articles;
     }
 
@@ -65,7 +66,7 @@ public class ArticleService {
 
         ArticleEntity article = newspaper.getArticles().get(articleIndex);
         article.setDescription(newDescription);
-        article.setType(newType);
+//        article.setType(newType);
 
         Document articleDoc = Document.parse(gson.toJson(article));
         newspaperDAO.updateArticle(newspaperId, articleIndex, articleDoc);
@@ -88,9 +89,9 @@ public class ArticleService {
     }
 
     // 7. Get Readers of an Article
-    public List<ReaderArticleDTO> getReadersOfArticle(String newspaperId, int articleIndex)
+    public List<ReadArticleDTO> getReadersOfArticle(String newspaperId, int articleIndex)
             throws ArticleNotFoundException {
-        List<ReaderArticleDTO> readers = new ArrayList<>();
+        List<ReadArticleDTO> readers = new ArrayList<>();
         NewspaperEntity newspaper = newspaperDAO.findById(newspaperId);
 
         if (newspaper == null || articleIndex >= newspaper.getArticles().size() || articleIndex < 0) {
@@ -99,18 +100,18 @@ public class ArticleService {
 
         ArticleEntity article = newspaper.getArticles().get(articleIndex);
 
-            for (ReadArticleEntity ra : article.getReadarticle()) {
-                ReaderEntity reader = readerDAO.findById(ra.getIdReader());
-                if (reader != null) {
-                    List<String> newspaperNames = getSubscribedNewspaperNames(reader);
-                    readers.add(new ReaderArticleDTO(
-                        ra.getIdReader(),
-                        reader.getName(),
-                        reader.getDob(),
-                        ra.getRating(),
-                        newspaperNames));
-                }
-            }
+//            for (ReadArticleEntity ra : article.getReadarticle()) {
+//                ReaderEntity reader = readerDAO.findById(ra.getIdReader());
+//                if (reader != null) {
+//                    List<String> newspaperNames = getSubscribedNewspaperNames(reader);
+//                    readers.add(new ReadArticleDTO(
+//                        ra.getIdReader(),
+//                        reader.getName(),
+//                        reader.getDob(),
+//                        ra.getRating(),
+//                        newspaperNames));
+//                }
+//            }
         return readers;
     }
 

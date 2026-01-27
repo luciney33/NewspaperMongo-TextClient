@@ -1,9 +1,10 @@
 package ui;
 
 
-import org.example.domain.error.AppError;
-import org.example.domain.error.ArticleNotFoundException;
-import org.example.domain.error.ReaderNotFoundException;
+import domain.error.AppError;
+import domain.model.CredentialDTO;
+import jakarta.enterprise.inject.se.SeContainer;
+import jakarta.enterprise.inject.se.SeContainerInitializer;
 
 import java.util.Scanner;
 
@@ -12,31 +13,36 @@ public class mainMenu {
 
         //siempre hay que inicializar con el try
         try {
+            SeContainerInitializer initializer = SeContainerInitializer.newInstance();
+            SeContainer container = initializer.initialize();
+            CredentialUI credentialUI = container.select(CredentialUI.class).get();
+            ArticleUI articleUI = container.select(ArticleUI.class).get();
+            NewspaperUI newspaperUI = container.select(NewspaperUI.class).get();
+            ReaderUI readerUI = container.select(ReaderUI.class).get();
+//            ReadArticleUI readActUI = container.select(ReadArticleUI.class).get();
+//            TypeUI typeUI = container.select(TypeUI.class).get();
 
-            final ArticleUI articleUI = new ArticleUI();
-            final ReaderUI readerUI= new ReaderUI();
-            final NewspaperUI newspaperUI= new NewspaperUI();
+
+
             Scanner sc = new Scanner(System.in);
+            boolean loggedIN = false;
+            while (!loggedIN) {
+                System.out.println("=========  USUARIOS  =================\n"+
+                        "username: u1, password: 1 \n" +
+                        "username: u2, password: 1 \n");
+                System.out.println("Username");
+                String username = sc.nextLine().trim();
+                if (username.isEmpty()) continue;
 
+                System.out.println("Password");
+                String password = sc.nextLine().trim();
+                if (password.isEmpty()) continue;
 
-//            boolean loggedIN = false;
-//            while (!loggedIN) {
-//                System.out.println("=========  USUARIOS  =================\n"+
-//                        "username: u1, password: 1 \n" +
-//                        "username: u2, password: 1 \n");
-//                System.out.println("Username");
-//                String username = sc.nextLine().trim();
-//                if (username.isEmpty()) continue;
-//
-//                System.out.println("Password");
-//                String password = sc.nextLine().trim();
-//                if (password.isEmpty()) continue;
-//
-//                loggedIN = credentialService.checkLogin(new CredentialDTO(username, password, 0));
-//                if (!loggedIN) {
-//                    System.out.println("Invalid username");
-//                } else System.out.println("Valid username");
-//            }
+                loggedIN = credentialUI.checkLogin(new CredentialDTO(username, password, 0));
+                if (!loggedIN) {
+                    System.out.println("Invalid username");
+                } else System.out.println("Valid username");
+            }
             int opc;
             do {
                 System.out.println("1. Get all articles");
@@ -67,13 +73,13 @@ public class mainMenu {
                         articleUI.getArticles();
                         break;
                     case 2:
-                        articleUI.saveArticle();
+//                        articleUI.saveArticle();
                         break;
                     case 3:
-                        articleUI.updateArticle();
+//                        articleUI.updateArticle();
                         break;
                     case 4:
-                        articleUI.deleteArticle();
+//                        articleUI.deleteArticle();
                         break;
                     case 5:
                         newspaperUI.getNewspapers();
@@ -82,19 +88,19 @@ public class mainMenu {
                         readerUI.getReaders();
                         break;
                     case 7:
-                        readerUI.getReadersByArticle();
+//                        readerUI.getReadersByArticle();
                         break;
                     case 8:
-                        readerUI.getReaderById();
+//                        readerUI.getReaderById();
                         break;
                     case 9:
-                        articleUI.addRating();
+//                        articleUI.addRating();
                         break;
                     case 10:
-                        articleUI.modifyRating();
+//                        articleUI.modifyRating();
                         break;
                     case 11:
-                        articleUI.deleteRating();
+//                        articleUI.deleteRating();
                         break;
                     case 12:
                         newspaperUI.getAllTypes();
@@ -103,7 +109,7 @@ public class mainMenu {
 //                        readerUI.addNewReaderCredentials();
 //                        break;
                     case 14:
-                        readerUI.deleteReader();
+//                        readerUI.deleteReader();
                         break;
                     case 15:
                         System.out.println("Exiting...");
@@ -115,7 +121,7 @@ public class mainMenu {
 
             } while (opc != 15);
 
-        } catch (AppError | ArticleNotFoundException | ReaderNotFoundException e) {
+        } catch (AppError e) {
             System.err.println("Error : " + e.getMessage());
             System.exit(1);
         }

@@ -1,11 +1,13 @@
 package ui;
 
-import org.example.dao.model.ReaderEntity;
-import org.example.domain.error.ArticleNotFoundException;
-import org.example.domain.error.ReaderNotFoundException;
-import org.example.domain.model.ReaderArticleDTO;
-import org.example.domain.service.ArticleService;
-import org.example.domain.service.ReaderService;
+
+
+import dao.model.ReaderEntity;
+import domain.error.ArticleNotFoundException;
+import domain.error.ReaderNotFoundException;
+import domain.model.ReadArticleDTO;
+import domain.service.ArticleService;
+import domain.service.ReaderService;
 
 import java.util.List;
 import java.util.Scanner;
@@ -29,7 +31,7 @@ public class ReaderUI {
         } else {
             for (ReaderEntity r : readers) {
                 System.out.printf("ID: %d | Nombre: %s | Fecha nacimiento: %s | Suscripciones: %d%n",
-                        r.get_id(), r.getName(), r.getDob(), r.getSubscriptions().size());
+                        r.getId(), r.getName(), r.getDob(), r.getSubscriptions().size());
             }
         }
     }
@@ -42,16 +44,16 @@ public class ReaderUI {
         System.out.print("Índice del artículo (0, 1, 2...): ");
         int index = Integer.parseInt(scanner.nextLine());
 
-        List<ReaderArticleDTO> readers = articleService.getReadersOfArticle(newspaperId, index);
-        if (readers.isEmpty()) {
-            System.out.println("Este artículo no tiene valoraciones de lectores.");
-        } else {
-            for (ReaderArticleDTO r : readers) {
-                System.out.printf("%nID: %d | Nombre: %s%n", r.getIdReader(), r.getName());
-                System.out.printf("Fecha nacimiento: %s | Rating: %d%n", r.getDob(), r.getRating());
-                System.out.printf("Suscripciones: %s%n", String.join(", ", r.getNewspaperNames()));
-            }
-        }
+////        List<ReadArticleDTO> readers = articleService.getReadersOfArticle(newspaperId, index);
+//        if (readers.isEmpty()) {
+//            System.out.println("Este artículo no tiene valoraciones de lectores.");
+//        } else {
+//            for (ReadArticleDTO r : readers) {
+//                System.out.printf("%nID: %d | Nombre: %s%n", r.getIdReader(), r.getNameReader());
+//                System.out.printf("Fecha nacimiento: %s | Rating: %d%n", r.getDobReader(), r.getRating());
+//                System.out.printf("Suscripciones: %s%n", String.join(", ", r.getSubscriptionsReader()));
+//            }
+//        }
     }
 
     // 8. Get Reader by id
@@ -61,10 +63,9 @@ public class ReaderUI {
         int id = Integer.parseInt(scanner.nextLine());
 
         ReaderEntity reader = readerService.getReaderById(id);
-        System.out.printf("%nID: %d%n", reader.get_id());
+        System.out.printf("%nID: %d%n", reader.getId());
         System.out.printf("Nombre: %s%n", reader.getName());
         System.out.printf("Fecha nacimiento: %s%n", reader.getDob());
-        System.out.printf("Usuario: %s%n", reader.getUsername());
         System.out.printf("Suscripciones: %d%n", reader.getSubscriptions().size());
     }
     // 13. Add new reader

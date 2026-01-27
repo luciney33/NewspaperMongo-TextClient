@@ -1,5 +1,9 @@
 package ui;
 
+import domain.model.CredentialDTO;
+import domain.service.CredentialService;
+import jakarta.inject.Inject;
+
 public class CredentialUI {
     private final CredentialService credentialService;
 

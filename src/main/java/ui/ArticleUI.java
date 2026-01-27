@@ -24,9 +24,9 @@ public class ArticleUI {
         } else {
             for (int i = 0; i < articles.size(); i++) {
                 ArticleDTO a = articles.get(i);
-                System.out.printf("%d. %s%n", i + 1, a.getName());
+                System.out.printf("%d. %s%n", i + 1, a.getDescription());
                 System.out.printf("   Tipo: %s | Periódico ID: %s | Rating promedio: %.2f%n",
-                        a.getTypeName(), a.getNewspaperId(), a.getAvgRating());
+                        a.getType(), a.getNPaperId(), a.getAvgRating());
             }
         }
     }

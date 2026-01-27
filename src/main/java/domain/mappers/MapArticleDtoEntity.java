@@ -11,9 +11,9 @@ public class MapArticleDtoEntity {
     public ArticleDTO toDTO(ArticleEntity entity) {
         return new ArticleDTO(
                 entity.getDescription(),
-                entity.getReadarticle(),
-                entity.getNPaperId(),
-                new TypeDTO(entity.getType().getName()));
+                0,
+                new TypeDTO(entity.getType().getName()),
+                0);
     }
 
     public ArticleEntity toEntity(ArticleDTO dto) {
