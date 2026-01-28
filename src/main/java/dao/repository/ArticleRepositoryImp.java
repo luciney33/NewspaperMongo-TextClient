@@ -96,6 +96,15 @@ public class ArticleRepositoryImp implements dao.ArticleRepository {
 
     @Override
     public void update(ArticleEntity article) {
+        Document articleDoc = ArticleEntityMapper.entityToDocument(article);
 
+        Document query = new Document("articles.description", article.getDescription());
+
+        Document update = new Document("$set", new Document()
+                .append("articles.$.description", article.getDescription())
+                .append("articles.$.type", article.getType())
+                .append("articles.$.readarticle", articleDoc.get("readarticle")));
+
+        collection.updateOne(query, update).getModifiedCount();
     }
 }

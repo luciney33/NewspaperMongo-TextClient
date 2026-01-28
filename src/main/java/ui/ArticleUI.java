@@ -1,5 +1,6 @@
 package ui;
 
+import dao.model.ArticleEntity;
 import domain.model.ArticleDTO;
 import domain.model.NewspaperDTO;
 import domain.service.ArticleService;
@@ -34,12 +35,10 @@ public class ArticleUI {
         }
     }
 
-    // 2. Add Article
     public void save() {
         System.out.println("\n➕ ═══════════ AÑADIR ARTÍCULO ═══════════");
 
-        // ✅ Mostrar periódicos disponibles
-        System.out.println("\n📰 Periódicos disponibles:");
+        System.out.println("\n Periódicos :");
         List<NewspaperDTO> newspapers = newspaperService.getAllNewspapers();
 
         if (newspapers.isEmpty()) {
@@ -67,30 +66,56 @@ public class ArticleUI {
         System.out.print("Tipo (Sports, Politics, Noticias, etc.): ");
         String type = scanner.nextLine();
 
-        int result = articleService.save(newspaperName, description, type);
+        // ✅ Construir el ArticleEntity
+        ArticleEntity newArticle = ArticleEntity.builder()
+                .description(description)
+                .type(type)
+                .build();
+
+        int result = articleService.save(newspaperName, newArticle);
         if (result > 0) {
             System.out.println("✅ Artículo añadido correctamente al periódico '" + newspaperName + "'");
         } else {
             System.out.println("❌ Error: No se pudo añadir el artículo. Verifica el nombre del periódico.");
         }
     }
-//
-//    // 3. Update Article
-//    public void updateArticle() throws ArticleNotFoundException {
-//        System.out.println("\n✏️ ═══════════ ACTUALIZAR ARTÍCULO ═══════════");
-//        System.out.print("ID del periódico: ");
-//        String newspaperId = scanner.nextLine();
-//        System.out.print("Índice del artículo (0, 1, 2...): ");
-//        int index = Integer.parseInt(scanner.nextLine());
-//        System.out.print("Nueva descripción: ");
-//        String description = scanner.nextLine();
-//        System.out.print("Nuevo tipo: ");
-//        String type = scanner.nextLine();
-//
-//        articleService.updateArticle(newspaperId, index, description, type);
-//        System.out.println("✅ Artículo actualizado correctamente");
-//    }
-//
+
+    public void update() {
+        System.out.println("\n✏️ ═══════════ ACTUALIZAR ARTÍCULO ═══════════");
+        List<ArticleDTO> articles = articleService.getAllArticles();
+        if (articles.isEmpty()) {
+            System.out.println("❌ No hay artículos disponibles para actualizar.");
+            return;
+        }
+
+        System.out.println("\nArtículos disponibles:");
+        int index = 1;
+        for (ArticleDTO article : articles) {
+            System.out.printf("%d. %s - Tipo: %s\n", index++, article.getDescription(), article.getType());
+        }
+
+        System.out.print("\nSelecciona el número del artículo a actualizar: ");
+        int selection = Integer.parseInt(scanner.nextLine());
+
+        if (selection < 1 || selection > articles.size()) {
+            System.out.println("❌ Selección inválida");
+            return;
+        }
+
+        String currentDescription = articles.get(selection - 1).getDescription();
+
+        System.out.print("Nuevo tipo (Sports, Politics, Noticias, etc.): ");
+        String newType = scanner.nextLine();
+
+        ArticleEntity updatedArticle = ArticleEntity.builder()
+                .description(currentDescription)
+                .type(newType)
+                .build();
+
+        articleService.update(updatedArticle);
+        System.out.println("✅ Artículo actualizado correctamente");
+    }
+
 //    // 4. Delete Article
 //    public void deleteArticle() throws ArticleNotFoundException {
 //        System.out.println("\n🗑️ ═══════════ ELIMINAR ARTÍCULO ═══════════");

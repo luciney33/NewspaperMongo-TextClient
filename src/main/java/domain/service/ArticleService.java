@@ -5,14 +5,15 @@ import dao.NewspaperRepository;
 import dao.model.ArticleEntity;
 import dao.model.NewspaperEntity;
 import domain.mappers.MapArticleDtoEntity;
-import domain.mappers.MapNewsDtoEntity;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import domain.model.ArticleDTO;
-import domain.model.NewspaperDTO;
+import lombok.extern.log4j.Log4j2;
 
 import java.util.ArrayList;
 import java.util.List;
+
+@Log4j2
 
 @ApplicationScoped
 public class ArticleService {
@@ -60,33 +61,19 @@ public class ArticleService {
         return articleDTOs;
     }
 
-    public int save(String newspaperName, String description, String type) {
-        ArticleEntity article = ArticleEntity.builder()
-                .description(description)
-                .type(type)
+    public int save(String newspaperName, ArticleEntity article) {
+        ArticleEntity articlenuevo = ArticleEntity.builder()
+                .description(article.getDescription())
+                .type(article.getType())
                 .build();
 
-        return articleRepository.save(article, newspaperName);
+        return articleRepository.save(articlenuevo, newspaperName);
     }
 
+    public void update(ArticleEntity article) {
+        articleRepository.update(article);
+    }
 
-
-//    // 3. Update Article
-//    public void updateArticle(String newspaperId, int articleIndex, String newDescription, String newType)
-//            throws ArticleNotFoundException {
-//        NewspaperEntity newspaper = newspaperDAO.findById(newspaperId);
-//        if (newspaper == null || articleIndex >= newspaper.getArticles().size() || articleIndex < 0) {
-//            throw new ArticleNotFoundException("Artículo no encontrado");
-//        }
-//
-//        ArticleEntity article = newspaper.getArticles().get(articleIndex);
-//        article.setDescription(newDescription);
-////        article.setType(newType);
-//
-//        Document articleDoc = Document.parse(gson.toJson(article));
-//        newspaperDAO.updateArticle(newspaperId, articleIndex, articleDoc);
-//    }
-//
 //    // 4. Delete Article
 //    public void deleteArticle(String newspaperId, int articleIndex, boolean forceDelete)
 //            throws ArticleNotFoundException {
