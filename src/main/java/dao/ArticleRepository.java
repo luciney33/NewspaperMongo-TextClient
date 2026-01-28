@@ -9,5 +9,5 @@ public interface ArticleRepository {
     ArticleEntity get(String description);
     int save(ArticleEntity article, String newspaperName);
     boolean delete(int articleId, boolean confirmation);
-    void update(ArticleEntity article);
+    int update(String oldDescription, ArticleEntity updatedArticle);
 }

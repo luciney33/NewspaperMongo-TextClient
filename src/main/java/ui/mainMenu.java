@@ -76,7 +76,7 @@ public class mainMenu {
                         articleUI.save();
                         break;
                     case 3:
-//                        articleUI.updateArticle();
+                        articleUI.update();
                         break;
                     case 4:
 //                        articleUI.deleteArticle();
