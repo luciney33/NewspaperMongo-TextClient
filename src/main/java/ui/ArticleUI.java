@@ -94,7 +94,13 @@ public class ArticleUI {
         }
 
         System.out.print("\nSelecciona el número del artículo a actualizar: ");
-        int selection = Integer.parseInt(scanner.nextLine());
+        int selection;
+        try {
+            selection = Integer.parseInt(scanner.nextLine());
+        } catch (NumberFormatException e) {
+            System.out.println("❌ Entrada inválida. Debe ser un número.");
+            return;
+        }
 
         if (selection < 1 || selection > articles.size()) {
             System.out.println("❌ Selección inválida");
@@ -115,6 +121,12 @@ public class ArticleUI {
         String newType = scanner.nextLine();
         if (newType.trim().isEmpty()) {
             newType = selectedArticle.getType();
+        }
+
+        // Validate that final values are not empty
+        if (newDescription.trim().isEmpty() || newType.trim().isEmpty()) {
+            System.out.println("❌ Error: La descripción y el tipo no pueden estar vacíos");
+            return;
         }
 
         int result = articleService.updateArticle(oldDescription, newDescription, newType);
