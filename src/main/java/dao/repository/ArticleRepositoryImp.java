@@ -19,7 +19,6 @@ import static com.mongodb.client.model.Projections.*;
 public class ArticleRepositoryImp implements dao.ArticleRepository {
     private MongoCollection<Document> collection;
 
-    // Constructor sin parámetros para CDI
     public ArticleRepositoryImp() {
     }
 
@@ -45,7 +44,8 @@ public class ArticleRepositoryImp implements dao.ArticleRepository {
             }
         }
 
-        return articlesList;    }
+        return articlesList;
+    }
 
     @Override
     public ArticleEntity get(String description) {
@@ -69,8 +69,24 @@ public class ArticleRepositoryImp implements dao.ArticleRepository {
     }
 
     @Override
-    public int save(ArticleEntity article) {
-        return 0;
+    public int save(ArticleEntity article, String newspaperName) {
+        Document articleDoc = ArticleEntityMapper.entityToDocument(article);
+        Document newspaper = collection.find(new Document("name", newspaperName)).first();
+
+        if (newspaper == null) {
+            log.error("No se encontró el periódico con nombre: {}", newspaperName);
+            return 0;
+        }
+        long modifiedCount = collection.updateOne(
+                new Document("_id", newspaper.getObjectId("_id")),
+                new Document("$push", new Document("articles", articleDoc))
+        ).getModifiedCount();
+
+        log.info("Artículo '{}' añadido al periódico '{}'",
+                 article.getDescription(),
+                 newspaper.getString("name"));
+
+        return (int) modifiedCount;
     }
 
     @Override

@@ -16,9 +16,9 @@ public class NewspaperService {
     public NewspaperService() {}
 
     @Inject
-    public NewspaperService(NewspaperRepository newspaperRepository) {
+    public NewspaperService(NewspaperRepository newspaperRepository, MapNewsDtoEntity mapper) {
         this.newspaperRepository = newspaperRepository;
-        this.mapper = new MapNewsDtoEntity();
+        this.mapper = mapper;
     }
 
     // 5. Get all Newspapers

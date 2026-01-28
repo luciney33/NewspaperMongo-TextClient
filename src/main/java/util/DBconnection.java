@@ -16,7 +16,7 @@ public class DBconnection {
     }
 
     public Connection getConnection() throws SQLException {
-        Connection myConnection = DriverManager.getConnection(conf.getProperty("urlDB"),conf.getProperty("user_name"),conf.getProperty("password"));
+        Connection myConnection = DriverManager.getConnection(conf.getProperty("urlDBMysql"),conf.getProperty("username"),conf.getProperty("password"));
         return myConnection;
     }
 }

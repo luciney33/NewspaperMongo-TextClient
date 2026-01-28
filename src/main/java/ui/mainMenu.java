@@ -73,7 +73,7 @@ public class mainMenu {
                         articleUI.getArticles();
                         break;
                     case 2:
-//                        articleUI.saveArticle();
+                        articleUI.save();
                         break;
                     case 3:
 //                        articleUI.updateArticle();
@@ -85,7 +85,7 @@ public class mainMenu {
                         newspaperUI.getNewspapers();
                         break;
                     case 6:
-                        readerUI.getReaders();
+//                        readerUI.getReaders();
                         break;
                     case 7:
 //                        readerUI.getReadersByArticle();
@@ -103,7 +103,7 @@ public class mainMenu {
 //                        articleUI.deleteRating();
                         break;
                     case 12:
-                        newspaperUI.getNewspapers();
+//                        newspaperUI.getNewspapers();
                         break;
 //                    case 13:
 //                        readerUI.addNewReaderCredentials();

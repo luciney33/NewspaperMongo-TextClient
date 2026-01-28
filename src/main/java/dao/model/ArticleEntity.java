@@ -11,9 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 public class  ArticleEntity {
     private String description;
-
     private String type;
-
     @Singular("readArticle")
     private List<ReadArticleEntity> readarticle = new ArrayList<>();
 }

@@ -8,41 +8,30 @@ import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
 import jakarta.enterprise.inject.spi.InjectionPoint;
+import jakarta.inject.Inject;
 import org.bson.Document;
 
 @ApplicationScoped
 public class MongoDBConnection {
-    private static final String MONGO_URI = "mongodb://informatica.iesquevedo.es:2323/";
-    private static final String DATABASE_NAME = "lucia_peñafiel_MongoDB";
 
-    private static volatile MongoClient mongoClient;
-    private static volatile MongoDatabase database;
+    private final Configuration config;
+    private MongoClient client;
 
-    // Constructor sin parámetros para CDI
-    public MongoDBConnection() {
+    @Inject
+    public MongoDBConnection(Configuration config) {
+        this.config = config;
     }
 
-    public static MongoDatabase getDatabase() {
-        if (database == null) {
-            synchronized (MongoDBConnection.class) {
-                if (database == null) {
-                    mongoClient = MongoClients.create(MONGO_URI);
-                    database = mongoClient.getDatabase(DATABASE_NAME);
-                }
-            }
+    public MongoDatabase getDatabase(){
+        String dbName = config.getProperty("databaseName");
+        if(client == null){
+            String url = config.getProperty("urlDBMongo");
+            client = MongoClients.create(url);
+            System.out.println("Connected to MongoDB successfully");
+            return client.getDatabase(dbName);
         }
-        return database;
-    }
 
-    public static MongoCollection<Document> getCollection(String collectionName) {
-        return getDatabase().getCollection(collectionName);
-    }
-
-    public static MongoClient getClient() {
-        if (mongoClient == null) {
-            getDatabase(); // Inicializa el cliente si no existe
-        }
-        return mongoClient;
+        return client.getDatabase(dbName);
     }
 
     // ==================== PRODUCTORES CDI ====================
@@ -53,7 +42,11 @@ public class MongoDBConnection {
     @Produces
     @ApplicationScoped
     public MongoClient produceMongoClient() {
-        return getClient();
+        if (client == null) {
+            String url = config.getProperty("urlDBMongo");
+            client = MongoClients.create(url);
+        }
+        return client;
     }
 
     /**
@@ -72,9 +65,8 @@ public class MongoDBConnection {
     @Produces
     public MongoCollection<Document> produceMongoCollection(InjectionPoint injectionPoint) {
         String collectionName = inferCollectionName(injectionPoint);
-        return getCollection(collectionName);
+        return getDatabase().getCollection(collectionName);
     }
-
 
     /**
      * Infiere el nombre de la colección MongoDB desde el nombre de la clase
@@ -85,22 +77,21 @@ public class MongoDBConnection {
         }
 
         String className = injectionPoint.getBean().getBeanClass().getSimpleName();
-        System.out.println("🔍 DEBUG inferCollectionName: Clase detectada = " + className);
 
         // Mapeo de nombres de clases a colecciones
         if (className.contains("Type")) {
-            return "type";
+            return "Newspapers";
         } else if (className.contains("ReadArticle")) {
-            return "readArticle";
+            return "Newspapers";
         } else if (className.contains("Article")) {
-            return "articles";
+            // ✅ Los artículos están dentro de Newspapers
+            return "Newspapers";
         } else if (className.contains("Newspaper")) {
-            System.out.println("🔍 DEBUG inferCollectionName: Retornando 'Newspapers'");
             return "Newspapers";
         } else if (className.contains("Reader")) {
             return "Readers";
         } else if (className.contains("Subscription")) {
-            return "subscriptions";
+            return "Readers";
         }
 
         // Fallback
@@ -113,14 +104,6 @@ public class MongoDBConnection {
 
     @PreDestroy
     public void close() {
-        if (mongoClient != null) {
-            synchronized (MongoDBConnection.class) {
-                if (mongoClient != null) {
-                    mongoClient.close();
-                    mongoClient = null;
-                    database = null;
-                }
-            }
-        }
+        if (client != null) client.close();
     }
 }

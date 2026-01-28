@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
-    <entry key="urlDB">jdbc:mysql://dam2.mysql.iesquevedo.es:3335/luciapeñafiel_newspaperDB</entry>
-    <entry key="user_name">root</entry>
+    <entry key="urlDBMysql">jdbc:mysql://dam2.mysql.iesquevedo.es:3335/luciapeñafiel_newspaperDB</entry>
+    <entry key="urlDBMongo">mongodb://informatica.iesquevedo.es:2323/</entry>
+    <entry key="databaseName">lucia_peñafiel_MongoDB</entry>
+    <entry key="username">root</entry>
     <entry key="password">quevedo2dam</entry>
     <entry key="driver">com.mysql.cj.jdbc.Driver</entry>
 </properties>

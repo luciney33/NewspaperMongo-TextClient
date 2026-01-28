@@ -9,7 +9,7 @@ import java.util.List;
 
 public class NewspaperEntityMapper {
 
-    public static NewspaperEntity documentToEntity(Document doc) {
+    public NewspaperEntity documentToEntity(Document doc) {
         if (doc == null) {
             return null;
         }
@@ -29,7 +29,7 @@ public class NewspaperEntityMapper {
         return entity;
     }
 
-    public static Document entityToDocument(NewspaperEntity entity) {
+    public Document entityToDocument(NewspaperEntity entity) {
         if (entity == null) {
             return null;
         }
