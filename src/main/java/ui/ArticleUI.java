@@ -74,6 +74,68 @@ public class ArticleUI {
             System.out.println("❌ Error: No se pudo añadir el artículo. Verifica el nombre del periódico.");
         }
     }
+
+    // 3. Update Article
+    public void update() {
+        System.out.println("\n✏️ ═══════════ ACTUALIZAR ARTÍCULO ═══════════");
+        
+        // Show all articles first
+        List<ArticleDTO> articles = articleService.getAllArticles();
+        if (articles.isEmpty()) {
+            System.out.println("❌ No hay artículos para actualizar.");
+            return;
+        }
+
+        System.out.println("\n📰 Artículos disponibles:");
+        int index = 1;
+        for (ArticleDTO article : articles) {
+            System.out.printf("%d. %s (Tipo: %s)\n", index++, 
+                            article.getDescription(), article.getType());
+        }
+
+        System.out.print("\nSelecciona el número del artículo a actualizar: ");
+        int selection;
+        try {
+            selection = Integer.parseInt(scanner.nextLine());
+        } catch (NumberFormatException e) {
+            System.out.println("❌ Entrada inválida. Debe ser un número.");
+            return;
+        }
+
+        if (selection < 1 || selection > articles.size()) {
+            System.out.println("❌ Selección inválida");
+            return;
+        }
+
+        ArticleDTO selectedArticle = articles.get(selection - 1);
+        String oldDescription = selectedArticle.getDescription();
+
+        System.out.printf("\nActualizando artículo: %s\n", oldDescription);
+        System.out.print("Nueva descripción (Enter para mantener): ");
+        String newDescription = scanner.nextLine();
+        if (newDescription.trim().isEmpty()) {
+            newDescription = oldDescription;
+        }
+
+        System.out.print("Nuevo tipo (Enter para mantener): ");
+        String newType = scanner.nextLine();
+        if (newType.trim().isEmpty()) {
+            newType = selectedArticle.getType();
+        }
+
+        // Validate that final values are not empty
+        if (newDescription.trim().isEmpty() || newType.trim().isEmpty()) {
+            System.out.println("❌ Error: La descripción y el tipo no pueden estar vacíos");
+            return;
+        }
+
+        int result = articleService.updateArticle(oldDescription, newDescription, newType);
+        if (result > 0) {
+            System.out.println("✅ Artículo actualizado correctamente");
+        } else {
+            System.out.println("❌ Error: No se pudo actualizar el artículo");
+        }
+    }
 //
 //    // 3. Update Article
 //    public void updateArticle() throws ArticleNotFoundException {

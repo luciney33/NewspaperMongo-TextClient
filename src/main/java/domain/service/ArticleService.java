@@ -70,7 +70,15 @@ public class ArticleService {
     }
 
 
-
+    // 3. Update Article
+    public int updateArticle(String oldDescription, String newDescription, String newType) {
+        ArticleEntity updatedArticle = ArticleEntity.builder()
+                .description(newDescription)
+                .type(newType)
+                .build();
+        
+        return articleRepository.update(oldDescription, updatedArticle);
+    }
 //    // 3. Update Article
 //    public void updateArticle(String newspaperId, int articleIndex, String newDescription, String newType)
 //            throws ArticleNotFoundException {

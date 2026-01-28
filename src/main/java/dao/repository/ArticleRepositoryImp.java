@@ -95,7 +95,26 @@ public class ArticleRepositoryImp implements dao.ArticleRepository {
     }
 
     @Override
-    public void update(ArticleEntity article) {
+    public int update(String oldDescription, ArticleEntity updatedArticle) {
+        // Update the article using positional operator ($) - only description and type
+        // The readarticle array is preserved by not including it in the $set
+        Document updateQuery = new Document("articles.description", oldDescription);
+        Document updateDoc = new Document("$set", new Document()
+                .append("articles.$.description", updatedArticle.getDescription())
+                .append("articles.$.type", updatedArticle.getType()));
 
+        long modifiedCount = collection.updateOne(updateQuery, updateDoc).getModifiedCount();
+
+        if (modifiedCount == 0) {
+            log.error("No se encontró ningún artículo con descripción: {}", oldDescription);
+            return 0;
+        }
+
+        log.info("Artículo actualizado: '{}' -> '{}' (tipo: {})", 
+                 oldDescription, 
+                 updatedArticle.getDescription(), 
+                 updatedArticle.getType());
+
+        return (int) modifiedCount;
     }
 }
