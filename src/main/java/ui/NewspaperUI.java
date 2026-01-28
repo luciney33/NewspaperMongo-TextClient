@@ -19,14 +19,17 @@ public class NewspaperUI {
 
     public void getNewspapers() {
         List<NewspaperDTO> newspapers = newspaperService.getAllNewspapers();
+        System.out.println("🔍 DEBUG UI: Total newspapers recibidos: " + newspapers.size());
         System.out.println("\n📰 ═══════════ TODOS LOS PERIÓDICOS ═══════════");
         if (newspapers.isEmpty()) {
             System.out.println("No hay periódicos registrados.");
         } else {
             for (NewspaperDTO n : newspapers) {
+                System.out.println("🔍 DEBUG UI: Procesando newspaper: " + n.getName() + " con ID: " + n.getId());
                 System.out.printf("ID: %s | Nombre: %s%n",
                         n.getId().toString(), n.getName());
             }
         }
+        System.out.println("═══════════════════════════════════════════════\n");
     }
 }

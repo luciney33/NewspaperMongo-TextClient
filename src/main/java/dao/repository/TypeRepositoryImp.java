@@ -1,6 +1,5 @@
 package dao.repository;
 
-import com.google.gson.Gson;
 import com.mongodb.client.MongoCollection;
 import dao.TypeRepository;
 import dao.model.TypeEntity;
@@ -14,16 +13,14 @@ import java.util.List;
 @ApplicationScoped
 public class TypeRepositoryImp implements TypeRepository {
     private MongoCollection<Document> collection;
-    private Gson gson;
 
     // Constructor sin parámetros para CDI
     public TypeRepositoryImp() {
     }
 
     @Inject
-    public TypeRepositoryImp(MongoCollection<Document> collection, Gson gson) {
+    public TypeRepositoryImp(MongoCollection<Document> collection) {
         this.collection = collection;
-        this.gson = gson;
     }
 
 

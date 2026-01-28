@@ -1,6 +1,5 @@
 package dao.repository;
 
-import com.google.gson.Gson;
 import com.mongodb.client.MongoCollection;
 import dao.ReadArticleRepository;
 import dao.model.ReadArticleEntity;
@@ -15,16 +14,14 @@ import java.util.List;
 @ApplicationScoped
 public class ReadArticleRepositoryImp implements ReadArticleRepository {
     private MongoCollection<Document> collection;
-    private Gson gson;
 
     // Constructor sin parámetros para CDI
     public ReadArticleRepositoryImp() {
     }
 
     @Inject
-    public ReadArticleRepositoryImp(MongoCollection<Document> collection, Gson gson) {
+    public ReadArticleRepositoryImp(MongoCollection<Document> collection) {
         this.collection = collection;
-        this.gson = gson;
     }
 
 

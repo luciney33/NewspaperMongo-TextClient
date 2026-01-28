@@ -1,9 +1,9 @@
 package dao.repository;
 
-import com.google.gson.Gson;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import dao.NewspaperRepository;
+import dao.mapper.NewspaperEntityMapper;
 import dao.model.NewspaperEntity;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -15,16 +15,14 @@ import java.util.List;
 @ApplicationScoped
 public class NewspaperRepositoryImp implements NewspaperRepository {
     private MongoCollection<Document> collection;
-    private Gson gson;
 
     // Constructor sin parámetros para CDI
     public NewspaperRepositoryImp() {
     }
 
     @Inject
-    public NewspaperRepositoryImp(MongoCollection<Document> collection, Gson gson) {
+    public NewspaperRepositoryImp(MongoCollection<Document> collection) {
         this.collection = collection;
-        this.gson = gson;
     }
 
 
@@ -42,7 +40,7 @@ public class NewspaperRepositoryImp implements NewspaperRepository {
             while (cursor.hasNext()) {
                 Document doc = cursor.next();
                 System.out.println("🔍 DEBUG: Documento encontrado: " + doc.toJson());
-                NewspaperEntity newspaper = gson.fromJson(doc.toJson(), NewspaperEntity.class);
+                NewspaperEntity newspaper = NewspaperEntityMapper.documentToEntity(doc);
                 newspapers.add(newspaper);
             }
         }

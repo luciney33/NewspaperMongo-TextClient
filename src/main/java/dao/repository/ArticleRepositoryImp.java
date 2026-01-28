@@ -1,7 +1,7 @@
 package dao.repository;
 
-import com.google.gson.Gson;
 import com.mongodb.client.MongoCollection;
+import dao.mapper.ArticleEntityMapper;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.extern.log4j.Log4j2;
@@ -18,16 +18,14 @@ import static com.mongodb.client.model.Projections.*;
 @ApplicationScoped
 public class ArticleRepositoryImp implements dao.ArticleRepository {
     private MongoCollection<Document> collection;
-    private Gson gson;
 
     // Constructor sin parámetros para CDI
     public ArticleRepositoryImp() {
     }
 
     @Inject
-    public ArticleRepositoryImp(MongoCollection<Document> collection, Gson gson) {
+    public ArticleRepositoryImp(MongoCollection<Document> collection) {
         this.collection = collection;
-        this.gson = gson;
     }
 
     @Override
@@ -42,7 +40,7 @@ public class ArticleRepositoryImp implements dao.ArticleRepository {
             List<Document> documentArticles = (List<Document>) document.get("articles");
             if (documentArticles != null) {
                 for (Document article : documentArticles) {
-                    articlesList.add(gson.fromJson(article.toJson(), ArticleEntity.class));
+                    articlesList.add(ArticleEntityMapper.documentToEntity(article));
                 }
             }
         }
@@ -59,7 +57,7 @@ public class ArticleRepositoryImp implements dao.ArticleRepository {
             List<Document> documentArticles = (List<Document>) document.get("articles");
             if (documentArticles != null) {
                 for (Document article : documentArticles) {
-                    ArticleEntity articleEntity = gson.fromJson(article.toJson(), ArticleEntity.class);
+                    ArticleEntity articleEntity = ArticleEntityMapper.documentToEntity(article);
                     if (articleEntity.getDescription().equalsIgnoreCase(description)) {
                         return articleEntity;
                     }

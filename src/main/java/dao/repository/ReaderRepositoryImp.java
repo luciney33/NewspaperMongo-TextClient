@@ -1,34 +1,44 @@
 package dao.repository;
 
-import com.google.gson.Gson;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
 import dao.ReaderRepository;
+import dao.mapper.ReaderEntityMapper;
 import dao.model.CredentialEntity;
 import dao.model.ReaderEntity;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.bson.Document;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @ApplicationScoped
 public class ReaderRepositoryImp implements ReaderRepository {
     private MongoCollection<Document> collection;
-    private Gson gson;
 
     // Constructor sin parámetros para CDI
     public ReaderRepositoryImp() {
     }
 
     @Inject
-    public ReaderRepositoryImp(MongoCollection<Document> collection, Gson gson) {
+    public ReaderRepositoryImp(MongoCollection<Document> collection) {
         this.collection = collection;
-        this.gson = gson;
     }
 
     @Override
     public List<ReaderEntity> getAll() {
-        return List.of();
+        List<ReaderEntity> readers = new ArrayList<>();
+
+        try (MongoCursor<Document> cursor = collection.find().iterator()) {
+            while (cursor.hasNext()) {
+                Document doc = cursor.next();
+                ReaderEntity reader = ReaderEntityMapper.documentToEntity(doc);
+                readers.add(reader);
+            }
+        }
+
+        return readers;
     }
 
     @Override

@@ -1,14 +1,11 @@
 package util;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Produces;
 import jakarta.enterprise.inject.spi.InjectionPoint;
 import org.bson.Document;
@@ -78,17 +75,6 @@ public class MongoDBConnection {
         return getCollection(collectionName);
     }
 
-    /**
-     * Produce Gson para inyección CDI
-     */
-    @Produces
-    @Dependent
-    public Gson produceGson() {
-        return new GsonBuilder()
-                .setPrettyPrinting()
-                .serializeNulls()
-                .create();
-    }
 
     /**
      * Infiere el nombre de la colección MongoDB desde el nombre de la clase
