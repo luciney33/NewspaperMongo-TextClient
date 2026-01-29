@@ -1,22 +1,24 @@
 package domain.mappers;
 
 
+import dao.model.ReaderEntity;
+import domain.model.ReaderDTO;
+import jakarta.enterprise.context.ApplicationScoped;
+
 import java.util.ArrayList;
 import java.util.List;
 
+@ApplicationScoped
 public class MapReaderDtoEntity {
-//    public ReaderDTO entityToDto(JpaReaderEntity entity) {
-//        return new ReaderDTO(entity.getId_reader(), entity.getName(),entity.getBirth_date());
-//    }
-//    public List<ReaderDTO> entityListToDtoList(List<JpaReaderEntity> entities) {
-//        List<ReaderDTO> dtos = new ArrayList<>();
-//        for (JpaReaderEntity entity : entities) {
-//            dtos.add(entityToDto(entity));
-//        }
-//        return dtos;
-//    }
-//
-//    public JpaReaderEntity dtoToEntity(ReaderDTO readerDTO) {
-//        return new JpaReaderEntity(readerDTO.getIdReader(), readerDTO.getNameReader(), readerDTO.getDobReader(), null);
-//    }
+    public ReaderDTO entityToDto(ReaderEntity entity) {
+        return new ReaderDTO(entity.getId(), entity.getName(), entity.getDob());
+    }
+
+    public List<ReaderDTO> entityListToDtoList(List<ReaderEntity> entities) {
+        List<ReaderDTO> dtos = new ArrayList<>();
+        for (ReaderEntity entity : entities) {
+            dtos.add(entityToDto(entity));
+        }
+        return dtos;
+    }
 }

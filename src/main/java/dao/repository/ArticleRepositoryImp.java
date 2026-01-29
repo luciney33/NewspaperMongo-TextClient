@@ -1,6 +1,7 @@
 package dao.repository;
 
 import com.mongodb.client.MongoCollection;
+import dao.ArticleRepository;
 import dao.mapper.ArticleEntityMapper;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -16,7 +17,7 @@ import static com.mongodb.client.model.Projections.*;
 
 @Log4j2
 @ApplicationScoped
-public class ArticleRepositoryImp implements dao.ArticleRepository {
+public class ArticleRepositoryImp implements ArticleRepository {
     private MongoCollection<Document> collection;
 
     public ArticleRepositoryImp() {
@@ -90,8 +91,26 @@ public class ArticleRepositoryImp implements dao.ArticleRepository {
     }
 
     @Override
-    public boolean delete(int articleId, boolean confirmation) {
-        return false;
+    public boolean delete(String description, boolean confirmation) {
+        if (!confirmation) {
+            log.warn("Operación de eliminación cancelada por el usuario");
+            return false;
+        }
+
+        // Buscar el artículo para eliminarlo usando $pull
+        long deletedCount = collection.updateMany(
+                new Document("articles.description", description),
+                new Document("$pull", new Document("articles",
+                        new Document("description", description)))
+        ).getModifiedCount();
+
+        if (deletedCount > 0) {
+            log.info("Artículo con descripción '{}' eliminado correctamente", description);
+            return true;
+        } else {
+            log.error("No se pudo eliminar el artículo con descripción: {}", description);
+            return false;
+        }
     }
 
     @Override

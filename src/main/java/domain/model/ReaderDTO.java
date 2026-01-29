@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.bson.types.ObjectId;
 
-import java.time.LocalDate;
+
 @Data
 @AllArgsConstructor
 public class ReaderDTO {

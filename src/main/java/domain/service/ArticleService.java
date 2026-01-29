@@ -74,6 +74,10 @@ public class ArticleService {
         articleRepository.update(article);
     }
 
+    public boolean delete(String description, boolean confirmation) {
+        return articleRepository.delete(description, confirmation);
+    }
+
 //    // 4. Delete Article
 //    public void deleteArticle(String newspaperId, int articleIndex, boolean forceDelete)
 //            throws ArticleNotFoundException {

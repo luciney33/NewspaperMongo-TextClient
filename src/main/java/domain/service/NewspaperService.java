@@ -21,7 +21,6 @@ public class NewspaperService {
         this.mapper = mapper;
     }
 
-    // 5. Get all Newspapers
     public List<NewspaperDTO> getAllNewspapers() {
         return mapper.entityListToDtoList(newspaperRepository.getAll());
     }

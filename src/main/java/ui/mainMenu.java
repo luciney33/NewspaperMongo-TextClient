@@ -79,37 +79,37 @@ public class mainMenu {
                         articleUI.update();
                         break;
                     case 4:
-//                        articleUI.deleteArticle();
+                        articleUI.delete();
                         break;
                     case 5:
                         newspaperUI.getNewspapers();
                         break;
                     case 6:
-//                        readerUI.getReaders();
+                        readerUI.getAllReaders();
                         break;
                     case 7:
-//                        readerUI.getReadersByArticle();
+                        readerUI.getReadersByArticle();
                         break;
                     case 8:
-//                        readerUI.getReaderById();
+                        readerUI.getReaderById();
                         break;
-                    case 9:
-//                        articleUI.addRating();
-                        break;
-                    case 10:
-//                        articleUI.modifyRating();
-                        break;
-                    case 11:
-//                        articleUI.deleteRating();
-                        break;
-                    case 12:
-//                        newspaperUI.getNewspapers();
-                        break;
-//                    case 13:
-//                        readerUI.addNewReaderCredentials();
+//                    case 9:
+//                        readActUI.addRating();
 //                        break;
+//                    case 10:
+//                        readActUI.modifyRating();
+//                        break;
+//                    case 11:
+//                        readActUI.deleteRating();
+//                        break;
+//                    case 12:
+//                        typeUI.getAllTypes();
+//                        break;
+                    case 13:
+                        readerUI.addReader();
+                        break;
                     case 14:
-//                        readerUI.deleteReader();
+                        readerUI.deleteReader();
                         break;
                     case 15:
                         System.out.println("Exiting...");

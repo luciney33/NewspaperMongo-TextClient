@@ -1,8 +1,13 @@
 package ui;
 
+import domain.model.NewspaperDTO;
+import domain.model.ReaderDTO;
 import domain.service.ArticleService;
 import domain.service.ReaderService;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+
+import java.util.List;
 import java.util.Scanner;
 
 @ApplicationScoped
@@ -11,81 +16,195 @@ public class ReaderUI {
     private final ReaderService readerService;
     private final ArticleService articleService;
 
-    public ReaderUI() {
-        this.readerService = new ReaderService();
-        this.articleService = new ArticleService();
+    @Inject
+    public ReaderUI(ReaderService readerService, ArticleService articleService) {
+        this.readerService = readerService;
+        this.articleService = articleService;
     }
 
-//
-//    public void getReaders() {
-//        List<ReaderEntity> readers = readerService.getAllReaders();
-//        System.out.println("\n👥 ═══════════ TODOS LOS LECTORES ═══════════");
-//        if (readers.isEmpty()) {
-//            System.out.println("No hay lectores registrados.");
-//        } else {
-//            for (ReaderEntity r : readers) {
-//                System.out.printf("ID: %d | Nombre: %s | Fecha nacimiento: %s | Suscripciones: %d%n",
-//                        r.getId(), r.getName(), r.getDob(), r.getSubscriptions().size());
-//            }
-//        }
-//    }
-//
-//    // 7. Get Readers of an Article
-//    public void getReadersByArticle() throws ArticleNotFoundException {
-//        System.out.println("\n👥 ═══════════ LECTORES DE UN ARTÍCULO ═══════════");
-//        System.out.print("ID del periódico: ");
-//        String newspaperId = scanner.nextLine();
-//        System.out.print("Índice del artículo (0, 1, 2...): ");
-//        int index = Integer.parseInt(scanner.nextLine());
-//
-//////        List<ReadArticleDTO> readers = articleService.getReadersOfArticle(newspaperId, index);
-////        if (readers.isEmpty()) {
-////            System.out.println("Este artículo no tiene valoraciones de lectores.");
-////        } else {
-////            for (ReadArticleDTO r : readers) {
-////                System.out.printf("%nID: %d | Nombre: %s%n", r.getIdReader(), r.getNameReader());
-////                System.out.printf("Fecha nacimiento: %s | Rating: %d%n", r.getDobReader(), r.getRating());
-////                System.out.printf("Suscripciones: %s%n", String.join(", ", r.getSubscriptionsReader()));
-////            }
-////        }
-//    }
-//
-//    // 8. Get Reader by id
-//    public void getReaderById() throws ReaderNotFoundException {
-//        System.out.println("\n🔍 ═══════════ BUSCAR LECTOR ═══════════");
-//        System.out.print("ID del lector: ");
-//        int id = Integer.parseInt(scanner.nextLine());
-//
-//        ReaderEntity reader = readerService.getReaderById(id);
-//        System.out.printf("%nID: %d%n", reader.getId());
-//        System.out.printf("Nombre: %s%n", reader.getName());
-//        System.out.printf("Fecha nacimiento: %s%n", reader.getDob());
-//        System.out.printf("Suscripciones: %d%n", reader.getSubscriptions().size());
-//    }
-//    // 13. Add new reader
-////    public void anadirLector() {
-////        System.out.println("\n➕ ═══════════ AÑADIR LECTOR ═══════════");
-////        System.out.print("Nombre: ");
-////        String name = scanner.nextLine();
-////        System.out.print("Fecha de nacimiento (YYYY/MM/DD): ");
-////        String dob = scanner.nextLine();
-////        System.out.print("Nombre de usuario: ");
-////        String username = scanner.nextLine();
-////        System.out.print("Contraseña: ");
-////        String password = scanner.nextLine();
-////
-////        readerService.addReader(name, dob, username, password);
-////        System.out.println("✅ Lector añadido correctamente");
-////    }
-//
-//    // 14. Delete reader
-//    public void deleteReader() throws ReaderNotFoundException {
-//        System.out.println("\n🗑️ ═══════════ ELIMINAR LECTOR ═══════════");
-//        System.out.print("ID del lector: ");
-//        int id = Integer.parseInt(scanner.nextLine());
-//
-//        readerService.deleteReader(id);
-//        System.out.println("✅ Lector eliminado correctamente");
-//    }
+
+    public void getAllReaders() {
+        List<ReaderDTO> readers = readerService.getAllReaders();
+        System.out.println("\n ══════════════════════════════════════════");
+        if (readers.isEmpty()) {
+            System.out.println("No hay readers registrados.");
+        } else {
+            for (ReaderDTO r : readers) {
+                System.out.println(r.toString());
+            }
+        }
+        System.out.println("═══════════════════════════════════════════════\n");
+    }
+
+    public void getReadersByArticle() {
+        System.out.println("\n👥 ═══════════ LECTORES DE UN ARTÍCULO ═══════════");
+        System.out.print("Descripción del artículo: ");
+        String description = scanner.nextLine();
+
+        List<ReaderDTO> readers = readerService.getReadersByArticle(description);
+
+        if (readers.isEmpty()) {
+            System.out.println("Este artículo no tiene valoraciones de lectores.");
+        } else {
+            System.out.println("\n----- Lectores que han leído este artículo -----");
+            for (ReaderDTO reader : readers) {
+                System.out.println(reader.toString());
+            }
+        }
+    }
+
+    // 8. Get Reader by name
+    public void getReaderById() {
+        System.out.println("\n🔍 ═══════════ BUSCAR LECTOR ═══════════");
+        System.out.print("Nombre del lector: ");
+        String name = scanner.nextLine();
+
+        try {
+            ReaderDTO reader = readerService.getReaderByName(name);
+            System.out.println("\n" + reader.toString());
+        } catch (Exception e) {
+            System.out.println("❌ Error: " + e.getMessage());
+        }
+    }
+
+    // 13. Add new reader
+    public void addReader() {
+        try {
+            System.out.println("\n➕ ═══════════ AÑADIR LECTOR ═══════════");
+
+            // Validar nombre
+            String name;
+            while (true) {
+                System.out.print("Nombre: ");
+                name = scanner.nextLine().trim();
+                if (!name.isEmpty()) {
+                    break;
+                }
+                System.out.println("⚠ El nombre no puede estar vacío.");
+            }
+
+            // Validar fecha de nacimiento
+            String dob;
+            while (true) {
+                System.out.print("Fecha de nacimiento (YYYY/MM/DD): ");
+                dob = scanner.nextLine().trim();
+                if (!dob.isEmpty() && dob.matches("\\d{4}/\\d{2}/\\d{2}")) {
+                    break;
+                }
+                System.out.println("⚠ Formato inválido. Use YYYY/MM/DD.");
+            }
+
+            // Preguntar si quiere añadir credenciales
+            boolean addCredentials;
+            while (true) {
+                System.out.print("¿Desea añadir credenciales para este lector? (s/n): ");
+                String answer = scanner.nextLine().trim().toLowerCase();
+                if (answer.equals("s") || answer.equals("si") || answer.equals("yes")) {
+                    addCredentials = true;
+                    break;
+                } else if (answer.equals("n") || answer.equals("no")) {
+                    addCredentials = false;
+                    break;
+                } else {
+                    System.out.println("⚠ Por favor responda 's' o 'n'.");
+                }
+            }
+
+            String username = "";
+            String password = "";
+
+            if (addCredentials) {
+                // Validar username
+                while (true) {
+                    System.out.print("Nombre de usuario: ");
+                    username = scanner.nextLine().trim();
+                    if (!username.isEmpty()) {
+                        break;
+                    }
+                    System.out.println("⚠ El nombre de usuario no puede estar vacío.");
+                }
+
+                // Validar password
+                while (true) {
+                    System.out.print("Contraseña: ");
+                    password = scanner.nextLine().trim();
+                    if (!password.isEmpty()) {
+                        break;
+                    }
+                    System.out.println("⚠ La contraseña no puede estar vacía.");
+                }
+
+                // Confirmar
+                System.out.print("¿Confirma la creación del lector con credenciales? (s/n): ");
+                String respuesta = scanner.nextLine().trim().toLowerCase();
+                boolean confirmation = respuesta.equals("s") || respuesta.equals("si") || respuesta.equals("yes");
+
+                int result = readerService.addReader(name, dob, username, password, confirmation);
+
+                if (result > 0) {
+                    System.out.println("✅ Lector añadido correctamente con credenciales");
+                } else {
+                    System.out.println("❌ No se pudo añadir el lector");
+                }
+            } else {
+                System.out.println("⚠ Reader creado sin credenciales (solo se guardará en MongoDB)");
+                // Crear reader sin credenciales (pasamos credenciales vacías y confirmation false)
+                int result = readerService.addReader(name, dob, "", "", false);
+
+                if (result > 0) {
+                    System.out.println("✅ Lector añadido correctamente");
+                } else {
+                    System.out.println("❌ No se pudo añadir el lector");
+                }
+            }
+
+        } catch (Exception e) {
+            System.err.println("❌ Error al crear lector: " + e.getMessage());
+        }
+    }
+
+    // 14. Delete reader
+    public void deleteReader() {
+        System.out.println("\n🗑️ ═══════════ ELIMINAR LECTOR ═══════════");
+
+        // Mostrar lista de lectores disponibles
+        List<ReaderDTO> readers = readerService.getAllReaders();
+
+        if (readers.isEmpty()) {
+            System.out.println("No hay lectores registrados.");
+            return;
+        }
+
+        System.out.println("\n----- Lectores disponibles -----");
+        for (int i = 0; i < readers.size(); i++) {
+            System.out.println((i + 1) + ". " + readers.get(i).getName() + " (ID: " + readers.get(i).getId() + ")");
+        }
+
+        // Solicitar nombre del lector
+        System.out.print("\nNombre del lector a eliminar: ");
+        String name = scanner.nextLine().trim();
+
+        if (name.isEmpty()) {
+            System.out.println("❌ Nombre inválido");
+            return;
+        }
+
+        // Confirmar eliminación
+        System.out.print("⚠ ¿Está seguro de eliminar el lector '" + name + "'? (s/n): ");
+        String respuesta = scanner.nextLine().trim().toLowerCase();
+        boolean confirmation = respuesta.equals("s") || respuesta.equals("si") || respuesta.equals("yes");
+
+        try {
+            int result = readerService.deleteReader(name, confirmation);
+
+            if (result > 0) {
+                System.out.println("✅ Lector eliminado correctamente");
+            } else {
+                System.out.println("❌ No se pudo eliminar el lector");
+            }
+        } catch (Exception e) {
+            System.out.println("❌ Error: " + e.getMessage());
+        }
+    }
 
 }

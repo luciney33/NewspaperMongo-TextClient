@@ -2,6 +2,7 @@ package dao.mapper;
 
 import dao.model.ReadArticleEntity;
 import org.bson.Document;
+import org.bson.types.ObjectId;
 
 public class ReadArticleEntityMapper {
 
@@ -11,7 +12,7 @@ public class ReadArticleEntityMapper {
         }
 
         return ReadArticleEntity.builder()
-                .idReader(doc.getInteger("id_reader", 0))
+                .idReader(doc.getObjectId("_idReader"))
                 .rating(doc.getInteger("rating", 0))
                 .build();
     }
@@ -22,7 +23,7 @@ public class ReadArticleEntityMapper {
         }
 
         return new Document()
-                .append("id_reader", entity.getIdReader())
+                .append("_idReader", entity.getIdReader())
                 .append("rating", entity.getRating());
     }
 }

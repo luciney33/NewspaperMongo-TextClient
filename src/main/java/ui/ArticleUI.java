@@ -55,7 +55,7 @@ public class ArticleUI {
         int selection = Integer.parseInt(scanner.nextLine());
 
         if (selection < 1 || selection > newspapers.size()) {
-            System.out.println("❌ Selección inválida");
+            System.out.println("Selección inválida");
             return;
         }
 
@@ -66,7 +66,6 @@ public class ArticleUI {
         System.out.print("Tipo (Sports, Politics, Noticias, etc.): ");
         String type = scanner.nextLine();
 
-        // ✅ Construir el ArticleEntity
         ArticleEntity newArticle = ArticleEntity.builder()
                 .description(description)
                 .type(type)
@@ -74,9 +73,9 @@ public class ArticleUI {
 
         int result = articleService.save(newspaperName, newArticle);
         if (result > 0) {
-            System.out.println("✅ Artículo añadido correctamente al periódico '" + newspaperName + "'");
+            System.out.println("Artículo añadido correctamente al periódico '" + newspaperName + "'");
         } else {
-            System.out.println("❌ Error: No se pudo añadir el artículo. Verifica el nombre del periódico.");
+            System.out.println("Error: No se pudo añadir el artículo. Verifica el nombre del periódico.");
         }
     }
 
@@ -84,7 +83,7 @@ public class ArticleUI {
         System.out.println("\n✏️ ═══════════ ACTUALIZAR ARTÍCULO ═══════════");
         List<ArticleDTO> articles = articleService.getAllArticles();
         if (articles.isEmpty()) {
-            System.out.println("❌ No hay artículos disponibles para actualizar.");
+            System.out.println("No hay artículos disponibles para actualizar.");
             return;
         }
 
@@ -98,7 +97,7 @@ public class ArticleUI {
         int selection = Integer.parseInt(scanner.nextLine());
 
         if (selection < 1 || selection > articles.size()) {
-            System.out.println("❌ Selección inválida");
+            System.out.println("Selección inválida");
             return;
         }
 
@@ -113,31 +112,45 @@ public class ArticleUI {
                 .build();
 
         articleService.update(updatedArticle);
-        System.out.println("✅ Artículo actualizado correctamente");
+        System.out.println("Artículo actualizado correctamente");
     }
 
-//    // 4. Delete Article
-//    public void deleteArticle() throws ArticleNotFoundException {
-//        System.out.println("\n🗑️ ═══════════ ELIMINAR ARTÍCULO ═══════════");
-//        System.out.print("ID del periódico: ");
-//        String newspaperId = scanner.nextLine();
-//        System.out.print("Índice del artículo (0, 1, 2...): ");
-//        int index = Integer.parseInt(scanner.nextLine());
-//
-//        try {
-//            articleService.deleteArticle(newspaperId, index, false);
-//            System.out.println("✅ Artículo eliminado correctamente");
-//        } catch (IllegalStateException e) {
-//            System.out.print("⚠ " + e.getMessage() + " ¿Eliminar de todas formas? (s/n): ");
-//            String respuesta = scanner.nextLine();
-//            if (respuesta.equalsIgnoreCase("s")) {
-//                articleService.deleteArticle(newspaperId, index, true);
-//                System.out.println("✅ Artículo eliminado correctamente");
-//            } else {
-//                System.out.println("❌ Eliminación cancelada");
-//            }
-//        }
-//    }
+    // 4. Delete Article
+    public void delete() {
+        System.out.println("\n🗑️ ═══════════ ELIMINAR ARTÍCULO ═══════════");
+
+        List<ArticleDTO> articles = articleService.getAllArticles();
+        if (articles.isEmpty()) {
+            System.out.println("No hay artículos registrados.");
+            return;
+        }
+
+        System.out.println("\n----- Artículos disponibles -----");
+        for (int i = 0; i < articles.size(); i++) {
+            System.out.println((i + 1) + ". " + articles.get(i).getDescription() + " (" + articles.get(i).getType() + ")");
+        }
+
+        System.out.print("\nSeleccione el número del artículo a eliminar: ");
+        int selection = Integer.parseInt(scanner.nextLine());
+
+        if (selection < 1 || selection > articles.size()) {
+            System.out.println("Selección inválida");
+            return;
+        }
+
+        String description = articles.get(selection - 1).getDescription();
+
+        System.out.print("Estas seguro de eliminar el artículo '" + description + "'? (s/n): ");
+        String respuesta = scanner.nextLine();
+        boolean confirmation = respuesta.equalsIgnoreCase("s");
+
+        if (articleService.delete(description, confirmation)) {
+            System.out.println("Artículo eliminado correctamente");
+        } else {
+            System.out.println("No se pudo eliminar el artículo");
+        }
+    }
+
 //    // 9. Add rating to an Article
 //    public void addRating() throws ArticleNotFoundException {
 //        System.out.println("\n⭐ ═══════════ AÑADIR VALORACIÓN ═══════════");
