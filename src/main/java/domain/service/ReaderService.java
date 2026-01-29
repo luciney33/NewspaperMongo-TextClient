@@ -1,7 +1,6 @@
 package domain.service;
 
 import dao.NewspaperDAO;
-import dao.ReaderDAO;
 import dao.ReaderRepository;
 import dao.model.CredentialEntity;
 import dao.model.ReaderEntity;
@@ -10,6 +9,7 @@ import domain.mappers.MapReaderDtoEntity;
 import domain.model.ReaderDTO;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.bson.types.ObjectId;
 
 import java.util.List;
 
@@ -62,11 +62,13 @@ public class ReaderService {
     }
 
     // 14. Delete reader
-    public int deleteReader(String name, boolean confirmation) throws ReaderNotFoundException {
-        ReaderEntity reader = readerRepository.get(name);
-        if (reader == null) {
-            throw new ReaderNotFoundException("Lector con nombre '" + name + "' no encontrado");
-        }
+    public int deleteReader(String name, ObjectId id, boolean confirmation) throws ReaderNotFoundException {
+        // Crear el reader entity con el ID para eliminar
+        ReaderEntity reader = ReaderEntity.builder()
+                .id(id)
+                .name(name)
+                .build();
+
         return readerRepository.delete(reader, confirmation);
     }
 }

@@ -19,7 +19,7 @@ public class mainMenu {
             ArticleUI articleUI = container.select(ArticleUI.class).get();
             NewspaperUI newspaperUI = container.select(NewspaperUI.class).get();
             ReaderUI readerUI = container.select(ReaderUI.class).get();
-//            ReadArticleUI readActUI = container.select(ReadArticleUI.class).get();
+            ReadArticleUI readActUI = container.select(ReadArticleUI.class).get();
 //            TypeUI typeUI = container.select(TypeUI.class).get();
 
 
@@ -93,15 +93,15 @@ public class mainMenu {
                     case 8:
                         readerUI.getReaderById();
                         break;
-//                    case 9:
-//                        readActUI.addRating();
-//                        break;
-//                    case 10:
-//                        readActUI.modifyRating();
-//                        break;
-//                    case 11:
-//                        readActUI.deleteRating();
-//                        break;
+                    case 9:
+                        readActUI.addRating();
+                        break;
+                    case 10:
+                        readActUI.modifyRating();
+                        break;
+                    case 11:
+                        readActUI.deleteRating();
+                        break;
 //                    case 12:
 //                        typeUI.getAllTypes();
 //                        break;

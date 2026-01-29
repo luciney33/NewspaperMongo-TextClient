@@ -180,22 +180,48 @@ public class ReaderUI {
             System.out.println((i + 1) + ". " + readers.get(i).getName() + " (ID: " + readers.get(i).getId() + ")");
         }
 
-        // Solicitar nombre del lector
-        System.out.print("\nNombre del lector a eliminar: ");
-        String name = scanner.nextLine().trim();
+        // Solicitar número o nombre del lector
+        System.out.print("\nSeleccione el número del lector o escriba su nombre: ");
+        String input = scanner.nextLine().trim();
 
-        if (name.isEmpty()) {
-            System.out.println("❌ Nombre inválido");
+        if (input.isEmpty()) {
+            System.out.println("❌ Entrada inválida");
             return;
         }
 
+        ReaderDTO readerToDelete = null;
+
+        // Intentar parsear como número
+        try {
+            int number = Integer.parseInt(input);
+            if (number >= 1 && number <= readers.size()) {
+                readerToDelete = readers.get(number - 1);
+            } else {
+                System.out.println("❌ Número fuera de rango");
+                return;
+            }
+        } catch (NumberFormatException e) {
+            // No es un número, buscar por nombre
+            for (ReaderDTO reader : readers) {
+                if (reader.getName().equalsIgnoreCase(input)) {
+                    readerToDelete = reader;
+                    break;
+                }
+            }
+
+            if (readerToDelete == null) {
+                System.out.println("❌ Lector con nombre '" + input + "' no encontrado");
+                return;
+            }
+        }
+
         // Confirmar eliminación
-        System.out.print("⚠ ¿Está seguro de eliminar el lector '" + name + "'? (s/n): ");
+        System.out.print("⚠ ¿Está seguro de eliminar el lector '" + readerToDelete.getName() + "' (ID: " + readerToDelete.getId() + ")? (s/n): ");
         String respuesta = scanner.nextLine().trim().toLowerCase();
         boolean confirmation = respuesta.equals("s") || respuesta.equals("si") || respuesta.equals("yes");
 
         try {
-            int result = readerService.deleteReader(name, confirmation);
+            int result = readerService.deleteReader(readerToDelete.getName(), readerToDelete.getId(), confirmation);
 
             if (result > 0) {
                 System.out.println("✅ Lector eliminado correctamente");

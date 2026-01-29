@@ -34,11 +34,8 @@ public class MongoDBConnection {
         return client.getDatabase(dbName);
     }
 
-    // ==================== PRODUCTORES CDI ====================
 
-    /**
-     * Produce MongoClient para inyección CDI
-     */
+
     @Produces
     @ApplicationScoped
     public MongoClient produceMongoClient() {
@@ -49,42 +46,32 @@ public class MongoDBConnection {
         return client;
     }
 
-    /**
-     * Produce MongoDatabase para inyección CDI
-     */
+
     @Produces
     @ApplicationScoped
     public MongoDatabase produceMongoDatabase() {
         return getDatabase();
     }
 
-    /**
-     * Produce MongoCollection para inyección CDI
-     * Infiere el nombre de la colección desde la clase que lo inyecta
-     */
+
     @Produces
     public MongoCollection<Document> produceMongoCollection(InjectionPoint injectionPoint) {
         String collectionName = inferCollectionName(injectionPoint);
         return getDatabase().getCollection(collectionName);
     }
 
-    /**
-     * Infiere el nombre de la colección MongoDB desde el nombre de la clase
-     */
+
     private String inferCollectionName(InjectionPoint injectionPoint) {
         if (injectionPoint.getBean() == null) {
             return "default";
         }
 
         String className = injectionPoint.getBean().getBeanClass().getSimpleName();
-
-        // Mapeo de nombres de clases a colecciones
         if (className.contains("Type")) {
             return "Newspapers";
         } else if (className.contains("ReadArticle")) {
             return "Newspapers";
         } else if (className.contains("Article")) {
-            // ✅ Los artículos están dentro de Newspapers
             return "Newspapers";
         } else if (className.contains("Newspaper")) {
             return "Newspapers";
@@ -94,7 +81,6 @@ public class MongoDBConnection {
             return "Readers";
         }
 
-        // Fallback
         String baseName = className
                 .replace("RepositoryImp", "")
                 .replace("Repository", "")
