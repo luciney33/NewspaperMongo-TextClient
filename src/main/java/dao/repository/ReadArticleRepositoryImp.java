@@ -31,8 +31,37 @@ public class ReadArticleRepositoryImp implements ReadArticleRepository {
 
 
     @Override
-    public List<ReadArticleEntity> getAllByArticleId() {
-        return List.of();
+    public List<ReadArticleEntity> getAllByArticleId(String description) {
+        List<ReadArticleEntity> readArticles = new ArrayList<>();
+        MongoCollection<Document> newspapersCollection = database.getCollection("Newspapers");
+
+        try (MongoCursor<Document> cursor = newspapersCollection.find().iterator()) {
+            while (cursor.hasNext()) {
+                Document newspaper = cursor.next();
+                List<Document> articles = newspaper.getList("articles", Document.class);
+                if (articles != null) {
+                    for (Document article : articles) {
+                        String articleDescription = article.getString("description");
+                        if (description.equals(articleDescription)) {
+                            List<Document> readarticles = article.getList("readarticle", Document.class);
+                            if (readarticles != null) {
+                                for (Document readarticleDoc : readarticles) {
+                                    ReadArticleEntity readArticleEntity = ReadArticleEntityMapper.documentToEntity(readarticleDoc);
+                                    if (readArticleEntity != null) {
+                                        readArticles.add(readArticleEntity);
+                                    }
+                                }
+                            }
+                            return readArticles;
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("Error al obtener readarticles por descripción de artículo: " + e.getMessage(), e);
+        }
+
+        return readArticles;
     }
 
     @Override

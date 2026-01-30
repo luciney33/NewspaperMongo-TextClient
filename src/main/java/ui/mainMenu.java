@@ -86,7 +86,7 @@ public class mainMenu {
                         readerUI.getAllReaders();
                         break;
                     case 7:
-                        readerUI.getReadersByArticle();
+                        readActUI.getReadersByArticle();
                         break;
                     case 8:
                         readerUI.getReaderById();

@@ -1,6 +1,5 @@
 package domain.service;
 
-import dao.NewspaperDAO;
 import dao.ReaderRepository;
 import dao.model.CredentialEntity;
 import dao.model.ReaderEntity;
@@ -17,13 +16,11 @@ import java.util.List;
 public class ReaderService {
     private ReaderRepository readerRepository;
     private MapReaderDtoEntity mapper;
-    private NewspaperDAO newspaperDAO;
 
     @Inject
-    public ReaderService(ReaderRepository readerRepository,MapReaderDtoEntity mapper, NewspaperDAO newspaperDAO) {
+    public ReaderService(ReaderRepository readerRepository,MapReaderDtoEntity mapper) {
         this.readerRepository = readerRepository;
         this.mapper = mapper;
-        this.newspaperDAO = newspaperDAO;
     }
     public ReaderService() {}
 
@@ -31,10 +28,6 @@ public class ReaderService {
 
     public List<ReaderDTO> getAllReaders() {
         return mapper.entityListToDtoList(readerRepository.getAll());
-    }
-
-    public List<ReaderDTO> getReadersByArticle(String articleDescription) {
-        return mapper.entityListToDtoList(readerRepository.getAllByArticle(articleDescription));
     }
 
     public ReaderDTO getReaderByName(String name) throws ReaderNotFoundException {

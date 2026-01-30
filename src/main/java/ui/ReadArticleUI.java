@@ -24,6 +24,22 @@ public class ReadArticleUI {
         this.readerService = readerService;
     }
 
+    public void getReadersByArticle() {
+        System.out.println("\n═══════════ LECTORES DE UN ARTICULO ═══════════");
+        System.out.print("Descripción del articulo: ");
+        String description = sc.nextLine();
+
+        List<ReadArticleDTO> readarticles = readArticleService.getReadersByArticle(description);
+
+        if (readarticles.isEmpty()) {
+            System.out.println("Este articulo no tiene valoraciones de lectores");
+        } else {
+            System.out.println("\n----- Lectores que han leído este artículo -----");
+            for (ReadArticleDTO redeartcledto : readarticles) {
+                System.out.println(redeartcledto.toString());
+            }
+        }
+    }
 
     public void addRating() {
         System.out.println("\n ═══════════ AÑADIR RATING ═══════════");
@@ -49,7 +65,6 @@ public class ReadArticleUI {
             }
 
             ReaderDTO selectedReader = readers.get(selection - 1);
-            int readerId = selectedReader.getId().hashCode();
 
             System.out.print("Escribe la descripcion del articulo: ");
             String articleDescription = sc.nextLine().trim();
@@ -67,7 +82,7 @@ public class ReadArticleUI {
                 return;
             }
 
-            ReadArticleDTO dto = new ReadArticleDTO(readerId, 0, "", null, null, rating);
+            ReadArticleDTO dto = new ReadArticleDTO(selectedReader.getId(), 0, "", null, null, rating);
             int result = readArticleService.addRating(dto, articleDescription);
 
             if (result > 0) {
@@ -110,7 +125,6 @@ public class ReadArticleUI {
             }
 
             ReaderDTO selectedReader = readers.get(selection - 1);
-            int readerId = selectedReader.getId().hashCode();
 
             System.out.print("Escribe la descripcion del articulo: ");
             String articleDescription = sc.nextLine().trim();
@@ -128,7 +142,7 @@ public class ReadArticleUI {
                 return;
             }
 
-            ReadArticleDTO dto = new ReadArticleDTO(readerId, 0, "", null, null, newRating);
+            ReadArticleDTO dto = new ReadArticleDTO(selectedReader.getId(), 0, "", null, null, newRating);
 
             readArticleService.modifyRating(dto, articleDescription);
             System.out.println("Actualizado correctamente");
@@ -165,7 +179,6 @@ public class ReadArticleUI {
             }
 
             ReaderDTO selectedReader = readers.get(selection - 1);
-            int readerId = selectedReader.getId().hashCode();
 
             System.out.print("Escribe la descripcion del articulo: ");
             String articleDescription = sc.nextLine().trim();
@@ -175,7 +188,7 @@ public class ReadArticleUI {
                 return;
             }
 
-            ReadArticleDTO dto = new ReadArticleDTO(readerId, 0, "", null, null, 0);
+            ReadArticleDTO dto = new ReadArticleDTO(selectedReader.getId(), 0, "", null, null, 0);
 
             boolean deleted = readArticleService.deleteRating(dto, articleDescription);
             if (deleted) {

@@ -66,52 +66,6 @@ public class ReaderRepositoryImp implements ReaderRepository {
     }
 
     @Override
-    public List<ReaderEntity> getAllByArticle(String description) {
-        List<ReaderEntity> readers = new ArrayList<>();
-        MongoCollection<Document> newspapersCollection = database.getCollection("Newspapers");
-        List<ObjectId> readerIds = new ArrayList<>();
-        try (MongoCursor<Document> cursor = newspapersCollection.find().iterator()) {
-            while (cursor.hasNext()) {
-                Document newspaper = cursor.next();
-                List<Document> articles = newspaper.getList("articles", Document.class);
-
-                if (articles != null) {
-                    for (Document article : articles) {
-                        String articleDescription = article.getString("description");
-
-                        if (description.equals(articleDescription)) {
-                            List<Document> readarticles = article.getList("readarticle", Document.class);
-
-                            if (readarticles != null) {
-                                for (Document readarticle : readarticles) {
-                                    ObjectId readerId = readarticle.getObjectId("_idReader");
-                                    if (readerId != null && !readerIds.contains(readerId)) {
-                                        readerIds.add(readerId);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        if (!readerIds.isEmpty()) {
-            for (ObjectId readerId : readerIds) {
-                Document query = new Document("_id", readerId);
-                try (MongoCursor<Document> cursor = collection.find(query).iterator()) {
-                    if (cursor.hasNext()) {
-                        Document doc = cursor.next();
-                        ReaderEntity reader = ReaderEntityMapper.documentToEntity(doc);
-                        readers.add(reader);
-                    }
-                }
-            }
-        }
-
-        return readers;
-    }
-
-    @Override
     public int save(ReaderEntity reader, CredentialEntity credential, boolean confirmation) {
         ObjectId readerId = null;
 

@@ -32,22 +32,6 @@ public class ReaderUI {
         System.out.println("═══════════════════════════════════════════════\n");
     }
 
-    public void getReadersByArticle() {
-        System.out.println("\n═══════════ LECTORES DE UN ARTICULO ═══════════");
-        System.out.print("Descripción del articulo: ");
-        String description = scanner.nextLine();
-
-        List<ReaderDTO> readers = readerService.getReadersByArticle(description);
-
-        if (readers.isEmpty()) {
-            System.out.println("Este articulo no tiene valoraciones de lectores");
-        } else {
-            System.out.println("\n----- Lectores que han leído este artículo -----");
-            for (ReaderDTO reader : readers) {
-                System.out.println(reader.toString());
-            }
-        }
-    }
 
     public void getReaderById() {
         System.out.print("Nombre del lector: ");

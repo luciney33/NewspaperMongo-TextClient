@@ -2,6 +2,7 @@ package domain.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.bson.types.ObjectId;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -9,7 +10,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 public class ReadArticleDTO {
-    private int idReader;
+    private ObjectId idReader;
     private int idArticle;
     private String nameReader;
     private LocalDate dobReader;
@@ -18,7 +19,7 @@ public class ReadArticleDTO {
 
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("\n----- Reader Activities -----\n")
+        builder.append("\n----- Read Articles -----\n")
                 .append(" ID   : ").append(idReader).append("\n")
                 .append(" Article ID : ").append(idArticle).append("\n")
                 .append(" Name : ").append(nameReader).append("\n")
