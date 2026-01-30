@@ -21,7 +21,7 @@ public class NewspaperUI {
         List<NewspaperDTO> newspapers = newspaperService.getAllNewspapers();
         System.out.println("\n ══════════════════════════════════════════");
         if (newspapers.isEmpty()) {
-            System.out.println("No hay periódicos registrados.");
+            System.out.println("No hay periodicos registrados.");
         } else {
             for (NewspaperDTO n : newspapers) {
                 System.out.println(n.toString());

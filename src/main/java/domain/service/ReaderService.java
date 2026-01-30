@@ -37,7 +37,6 @@ public class ReaderService {
         return mapper.entityListToDtoList(readerRepository.getAllByArticle(articleDescription));
     }
 
-    // 8. Get Reader by name
     public ReaderDTO getReaderByName(String name) throws ReaderNotFoundException {
         ReaderEntity reader = readerRepository.get(name);
         if (reader == null) {
@@ -46,29 +45,20 @@ public class ReaderService {
         return mapper.entityToDto(reader);
     }
 
-    // 13. Add new reader, including credentials
     public int addReader(String name, String dob, String username, String password, boolean confirmation) {
-        // Crear el reader entity
         ReaderEntity reader = ReaderEntity.builder()
                 .name(name)
                 .dob(dob)
                 .build();
-
-        // Crear el credential entity
         CredentialEntity credential = new CredentialEntity(username, password, 0);
-
-        // Guardar reader y credenciales
         return readerRepository.save(reader, credential, confirmation);
     }
 
-    // 14. Delete reader
     public int deleteReader(String name, ObjectId id, boolean confirmation) throws ReaderNotFoundException {
-        // Crear el reader entity con el ID para eliminar
         ReaderEntity reader = ReaderEntity.builder()
                 .id(id)
                 .name(name)
                 .build();
-
         return readerRepository.delete(reader, confirmation);
     }
 }

@@ -5,17 +5,14 @@ import dao.ArticleRepository;
 import dao.mapper.ArticleEntityMapper;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import lombok.extern.log4j.Log4j2;
 import dao.model.ArticleEntity;
 import org.bson.Document;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.mongodb.client.model.Projections.*;
 
 
-@Log4j2
 @ApplicationScoped
 public class ArticleRepositoryImp implements ArticleRepository {
     private MongoCollection<Document> collection;
@@ -73,44 +70,25 @@ public class ArticleRepositoryImp implements ArticleRepository {
     public int save(ArticleEntity article, String newspaperName) {
         Document articleDoc = ArticleEntityMapper.entityToDocument(article);
         Document newspaper = collection.find(new Document("name", newspaperName)).first();
-
-        if (newspaper == null) {
-            log.error("No se encontró el periódico con nombre: {}", newspaperName);
-            return 0;
-        }
-        long modifiedCount = collection.updateOne(
+        long modifiedcount = collection.updateOne(
                 new Document("_id", newspaper.getObjectId("_id")),
                 new Document("$push", new Document("articles", articleDoc))
         ).getModifiedCount();
-
-        log.info("Artículo '{}' añadido al periódico '{}'",
-                 article.getDescription(),
-                 newspaper.getString("name"));
-
-        return (int) modifiedCount;
+        return (int) modifiedcount;
     }
 
     @Override
     public boolean delete(String description, boolean confirmation) {
         if (!confirmation) {
-            log.warn("Operación de eliminación cancelada por el usuario");
             return false;
         }
 
-        // Buscar el artículo para eliminarlo usando $pull
         long deletedCount = collection.updateMany(
                 new Document("articles.description", description),
                 new Document("$pull", new Document("articles",
                         new Document("description", description)))
         ).getModifiedCount();
-
-        if (deletedCount > 0) {
-            log.info("Artículo con descripción '{}' eliminado correctamente", description);
-            return true;
-        } else {
-            log.error("No se pudo eliminar el artículo con descripción: {}", description);
-            return false;
-        }
+        return deletedCount > 0;
     }
 
     @Override

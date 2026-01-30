@@ -2,12 +2,12 @@ package ui;
 
 import domain.error.AppError;
 import domain.error.DataBaseError;
+import domain.model.ReadArticleDTO;
 import domain.model.ReaderDTO;
 import domain.service.ReadArticleService;
 import domain.service.ReaderService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.bson.types.ObjectId;
 
 import java.util.List;
 import java.util.Scanner;
@@ -26,149 +26,169 @@ public class ReadArticleUI {
 
 
     public void addRating() {
-        System.out.println("\n⭐ ═══════════ AÑADIR RATING ═══════════");
+        System.out.println("\n ═══════════ AÑADIR RATING ═══════════");
         try {
-            // Mostrar lista de readers disponibles
             List<ReaderDTO> readers = readerService.getAllReaders();
 
             if (readers.isEmpty()) {
-                System.out.println("❌ No hay lectores registrados.");
+                System.out.println("No hay lectores registrados");
                 return;
             }
 
             System.out.println("\n----- Lectores disponibles -----");
             for (int i = 0; i < readers.size(); i++) {
-                System.out.println((i + 1) + ". " + readers.get(i).getName() + " (ID: " + readers.get(i).getId() + ")");
+                System.out.println((i + 1) + ". " + readers.get(i).getName() + " (ID MongoDB: " + readers.get(i).getId());
             }
 
             System.out.print("\nSeleccione el número del lector: ");
             int selection = Integer.parseInt(sc.nextLine());
 
             if (selection < 1 || selection > readers.size()) {
-                System.out.println("❌ Selección inválida");
+                System.out.println("Selección inválida");
                 return;
             }
 
             ReaderDTO selectedReader = readers.get(selection - 1);
+            int readerId = selectedReader.getId().hashCode();
+
+            System.out.print("Escribe la descripcion del articulo: ");
+            String articleDescription = sc.nextLine().trim();
+
+            if (articleDescription.isEmpty()) {
+                System.out.println("La descripcion del articulo no puede estar vacio");
+                return;
+            }
 
             System.out.print("Rating (1-5): ");
             int rating = Integer.parseInt(sc.nextLine());
 
             if (rating < 1 || rating > 5) {
-                System.out.println("❌ El rating debe estar entre 1 y 5.");
+                System.out.println("El rating debe ser entre 1 y 5");
                 return;
             }
 
-            int result = readArticleService.addRating(selectedReader.getId(), rating);
+            ReadArticleDTO dto = new ReadArticleDTO(readerId, 0, "", null, null, rating);
+            int result = readArticleService.addRating(dto, articleDescription);
 
             if (result > 0) {
-                System.out.println("✅ Rating añadido correctamente");
-            } else if (result == -2) {
-                System.out.println("⚠ Ya existe un rating para este lector");
+                System.out.println("Guardado correctamente");
             } else {
-                System.out.println("❌ No se pudo añadir el rating");
+                System.out.println("Error al añadir el nuevo rating");
             }
 
         } catch (NumberFormatException e) {
-            System.out.println("❌ Entrada inválida. Ingrese valores numéricos.");
+            System.out.println("Input invalido, añade numeros");
         } catch (DataBaseError e) {
-            System.out.println("❌ Error de base de datos: " + e.getMessage());
+            System.out.println("Database error: " + e.getMessage());
         } catch (AppError e) {
-            System.out.println("❌ Error de aplicación: " + e.getMessage());
-        } catch (Exception e) {
-            System.out.println("❌ Error inesperado: " + e.getMessage());
+            System.out.println("Application error: " + e.getMessage());
         }
     }
 
     public void modifyRating() {
-        System.out.println("\n📝 ═══════════ MODIFICAR RATING ═══════════");
+        System.out.println("\n═══════════ MODIFICAR RATING ═══════════");
         try {
-            // Mostrar lista de readers disponibles
             List<ReaderDTO> readers = readerService.getAllReaders();
 
             if (readers.isEmpty()) {
-                System.out.println("❌ No hay lectores registrados.");
+                System.out.println("No hay lectores registrado");
                 return;
             }
 
             System.out.println("\n----- Lectores disponibles -----");
             for (int i = 0; i < readers.size(); i++) {
-                System.out.println((i + 1) + ". " + readers.get(i).getName() + " (ID: " + readers.get(i).getId() + ")");
+                System.out.println((i + 1) + ". " + readers.get(i).getName() +
+                        " (ID MongoDB: " + readers.get(i).getId());
             }
 
             System.out.print("\nSeleccione el número del lector: ");
             int selection = Integer.parseInt(sc.nextLine());
 
             if (selection < 1 || selection > readers.size()) {
-                System.out.println("❌ Selección inválida");
+                System.out.println("Selección inválida");
                 return;
             }
 
             ReaderDTO selectedReader = readers.get(selection - 1);
+            int readerId = selectedReader.getId().hashCode();
 
-            System.out.print("Nuevo rating (1-5): ");
-            int newRating = Integer.parseInt(sc.nextLine());
+            System.out.print("Escribe la descripcion del articulo: ");
+            String articleDescription = sc.nextLine().trim();
 
-            if (newRating < 1 || newRating > 5) {
-                System.out.println("❌ El rating debe estar entre 1 y 5.");
+            if (articleDescription.isEmpty()) {
+                System.out.println("La descripcion del articulo no puede estar vacio");
                 return;
             }
 
-            readArticleService.modifyRating(selectedReader.getId(), newRating);
-            System.out.println("✅ Rating modificado correctamente");
+            System.out.print("Rating (1-5): ");
+            int newRating = Integer.parseInt(sc.nextLine());
+
+            if (newRating < 1 || newRating > 5) {
+                System.out.println("El rating debe ser entre 1 y 5");
+                return;
+            }
+
+            ReadArticleDTO dto = new ReadArticleDTO(readerId, 0, "", null, null, newRating);
+
+            readArticleService.modifyRating(dto, articleDescription);
+            System.out.println("Actualizado correctamente");
 
         } catch (DataBaseError e) {
-            System.out.println("❌ Error al modificar el rating: " + e.getMessage());
+            System.out.println("Error actualizando rating: " + e.getMessage());
         } catch (Exception e) {
-            System.out.println("❌ Error: " + e.getMessage());
+            System.out.println("Error: " + e.getMessage());
         }
     }
 
     public void deleteRating() {
-        System.out.println("\n🗑️ ═══════════ ELIMINAR RATING ═══════════");
+        System.out.println("\n═══════════ ELIMINAR RATING ═══════════");
         try {
-            // Mostrar lista de readers disponibles
             List<ReaderDTO> readers = readerService.getAllReaders();
 
             if (readers.isEmpty()) {
-                System.out.println("❌ No hay lectores registrados.");
+                System.out.println("No hay lectores registrados");
                 return;
             }
 
             System.out.println("\n----- Lectores disponibles -----");
             for (int i = 0; i < readers.size(); i++) {
-                System.out.println((i + 1) + ". " + readers.get(i).getName() + " (ID: " + readers.get(i).getId() + ")");
+                System.out.println((i + 1) + ". " + readers.get(i).getName() +
+                        " (ID MongoDB: " + readers.get(i).getId());
             }
 
             System.out.print("\nSeleccione el número del lector: ");
             int selection = Integer.parseInt(sc.nextLine());
 
             if (selection < 1 || selection > readers.size()) {
-                System.out.println("❌ Selección inválida");
+                System.out.println("Selección inválida");
                 return;
             }
 
             ReaderDTO selectedReader = readers.get(selection - 1);
+            int readerId = selectedReader.getId().hashCode();
 
-            System.out.print("⚠ ¿Está seguro de eliminar el rating? (s/n): ");
-            String confirmacion = sc.nextLine().trim().toLowerCase();
+            System.out.print("Escribe la descripcion del articulo: ");
+            String articleDescription = sc.nextLine().trim();
 
-            if (!confirmacion.equals("s") && !confirmacion.equals("si") && !confirmacion.equals("yes")) {
-                System.out.println("⚠ Operación cancelada");
+            if (articleDescription.isEmpty()) {
+                System.out.println("La descripcion del articulo no puede estar vacio");
                 return;
             }
 
-            boolean deleted = readArticleService.deleteRating(selectedReader.getId());
+            ReadArticleDTO dto = new ReadArticleDTO(readerId, 0, "", null, null, 0);
+
+            boolean deleted = readArticleService.deleteRating(dto, articleDescription);
             if (deleted) {
-                System.out.println("✅ Rating eliminado correctamente");
+                System.out.println("Eliminado correctamente");
             } else {
-                System.out.println("❌ Rating no encontrado");
+                System.out.println("Rating no encontrado");
             }
 
         } catch (DataBaseError e) {
-            System.out.println("❌ Error al eliminar el rating: " + e.getMessage());
+            System.out.println("Error al eliminar rating: " + e.getMessage());
         } catch (Exception e) {
-            System.out.println("❌ Error: " + e.getMessage());
+            System.out.println("Error: " + e.getMessage());
         }
     }
 }
+

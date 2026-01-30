@@ -1,6 +1,5 @@
 package dao.mapper;
 
-import dao.model.ArticleEntity;
 import dao.model.NewspaperEntity;
 import org.bson.Document;
 
@@ -27,28 +26,6 @@ public class NewspaperEntityMapper {
         }
 
         return entity;
-    }
-
-    public Document entityToDocument(NewspaperEntity entity) {
-        if (entity == null) {
-            return null;
-        }
-
-        Document doc = new Document();
-        if (entity.getId() != null) {
-            doc.append("_id", entity.getId());
-        }
-        doc.append("name", entity.getName());
-
-        List<Document> articlesDoc = new ArrayList<>();
-        if (entity.getArticles() != null) {
-            for (ArticleEntity article : entity.getArticles()) {
-                articlesDoc.add(ArticleEntityMapper.entityToDocument(article));
-            }
-        }
-        doc.append("articles", articlesDoc);
-
-        return doc;
     }
 }
 

@@ -1,50 +1,66 @@
 package domain.service;
 
 import dao.ReadArticleRepository;
+import dao.ReaderRepository;
 import dao.model.ReadArticleEntity;
+import dao.model.ReaderEntity;
+import domain.model.ReadArticleDTO;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.bson.types.ObjectId;
 
 @ApplicationScoped
 public class ReadArticleService {
     private ReadArticleRepository readArticleRepository;
+    private ReaderRepository readerRepository;
 
     @Inject
-    public ReadArticleService(ReadArticleRepository readArticleRepository) {
+    public ReadArticleService(ReadArticleRepository readArticleRepository, ReaderRepository readerRepository) {
         this.readArticleRepository = readArticleRepository;
+        this.readerRepository = readerRepository;
     }
 
     public ReadArticleService() {}
 
-    // 9. Add rating to an article
-    public int addRating(ObjectId idReader, int rating) {
-        ReadArticleEntity entity = ReadArticleEntity.builder()
-                .idReader(idReader)
-                .rating(rating)
-                .build();
-
-        return readArticleRepository.save(entity);
+    public int addRating(ReadArticleDTO dto, String articleDescription) {
+        ReadArticleEntity entity = dtoToEntity(dto);
+        if (entity == null) {
+            return -1;
+        }
+        return readArticleRepository.save(entity, articleDescription);
     }
 
-    // 10. Modify rating of an article
-    public void modifyRating(ObjectId idReader, int rating) {
-        ReadArticleEntity entity = ReadArticleEntity.builder()
-                .idReader(idReader)
-                .rating(rating)
-                .build();
-
-        readArticleRepository.update(entity);
+    public void modifyRating(ReadArticleDTO dto, String articleDescription) {
+        ReadArticleEntity entity = dtoToEntity(dto);
+        if (entity != null) {
+            readArticleRepository.update(entity, articleDescription);
+        }
     }
 
-    // 11. Delete rating of an article
-    public boolean deleteRating(ObjectId idReader) {
-        ReadArticleEntity entity = ReadArticleEntity.builder()
-                .idReader(idReader)
-                .rating(0)
-                .build();
+    public boolean deleteRating(ReadArticleDTO dto, String articleDescription) {
+        ReadArticleEntity entity = dtoToEntity(dto);
+        if (entity == null) {
+            return false;
+        }
+        return readArticleRepository.delete(entity, articleDescription);
+    }
 
-        return readArticleRepository.delete(entity);
+    private ReadArticleEntity dtoToEntity(ReadArticleDTO dto) {
+        if (dto == null) {
+            return null;
+        }
+        ReaderEntity reader = readerRepository.getAll().stream()
+                .filter(r -> r.getId().hashCode() == dto.getIdReader())
+                .findFirst()
+                .orElse(null);
+        if (reader == null) {
+            System.err.println("Reader no encontrado con ID: " + dto.getIdReader());
+            return null;
+        }
+
+        return ReadArticleEntity.builder()
+                .idReader(reader.getId())
+                .rating(dto.getRating())
+                .build();
     }
 }
 

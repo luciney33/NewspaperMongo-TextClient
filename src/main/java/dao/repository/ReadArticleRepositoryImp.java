@@ -1,9 +1,8 @@
 package dao.repository;
 
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.model.Filters;
-import com.mongodb.client.model.Updates;
 import dao.ReadArticleRepository;
 import dao.mapper.ReadArticleEntityMapper;
 import dao.model.ReadArticleEntity;
@@ -11,8 +10,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.extern.log4j.Log4j2;
 import org.bson.Document;
-import org.bson.conversions.Bson;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Log4j2
@@ -37,143 +36,244 @@ public class ReadArticleRepositoryImp implements ReadArticleRepository {
     }
 
     @Override
-    public int save(ReadArticleEntity readArticle) {
+    public int save(ReadArticleEntity readArticle, String articleDescription) {
         if (readArticle == null || readArticle.getIdReader() == null) {
-            System.err.println("❌ ReadArticle inválido");
-            return 0;
+            log.warn("ReadArticle inválido");
+            return -1;
+        }
+
+        if (articleDescription == null || articleDescription.trim().isEmpty()) {
+            log.warn("Article description inválida");
+            return -1;
         }
 
         try {
             MongoCollection<Document> newspapersCollection = database.getCollection("Newspapers");
-            Bson filterExisting = Filters.elemMatch("articles",
-                    Filters.elemMatch("readarticle",
-                            Filters.eq("_idReader", readArticle.getIdReader())));
+            Document targetNewspaper = null;
+            int articleIndex = -1;
+            int existingRatingIndex = -1;
 
-            Document existingDoc = newspapersCollection.find(filterExisting).first();
-            if (existingDoc != null) {
-                System.out.println("⚠ El reader ya tiene un rating registrado");
-                return -2; // Código especial para indicar que ya existe
+            try (MongoCursor<Document> cursor = newspapersCollection.find().iterator()) {
+                while (cursor.hasNext()) {
+                    Document newspaper = cursor.next();
+                    List<Document> articles = newspaper.getList("articles", Document.class);
+
+                    if (articles != null) {
+                        for (int i = 0; i < articles.size(); i++) {
+                            Document article = articles.get(i);
+                            String desc = article.getString("description");
+
+                            if (articleDescription.equals(desc)) {
+                                targetNewspaper = newspaper;
+                                articleIndex = i;
+                                List<Document> readarticles = article.getList("readarticle", Document.class);
+                                if (readarticles != null) {
+                                    for (int j = 0; j < readarticles.size(); j++) {
+                                        Document ra = readarticles.get(j);
+                                        if (readArticle.getIdReader().equals(ra.getObjectId("_idReader"))) {
+                                            existingRatingIndex = j;
+                                            break;
+                                        }
+                                    }
+                                }
+                                break;
+                            }
+                        }
+                    }
+                    if (targetNewspaper != null) break;
+                }
             }
 
-            // Buscar el newspaper y article (asumimos que se pasa en algún contexto)
-            // Como no tenemos el ID del newspaper ni del article, añadiremos el rating al primer artículo encontrado
-            Document firstNewspaper = newspapersCollection.find().first();
-
-            if (firstNewspaper == null) {
-                System.err.println("❌ No hay newspapers en la base de datos");
-                return 0;
+            if (targetNewspaper == null) {
+                log.warn("No se encontró artículo con descripción: " + articleDescription);
+                return -1;
             }
-
-            // Convertir entity a document
+            List<Document> articles = targetNewspaper.getList("articles", Document.class);
+            Document targetArticle = articles.get(articleIndex);
+            List<Document> readarticles = targetArticle.getList("readarticle", Document.class);
+            if (readarticles == null) {
+                readarticles = new ArrayList<>();
+            }
             Document readArticleDoc = ReadArticleEntityMapper.entityToDocument(readArticle);
-
-            // Añadir el rating al primer artículo del primer newspaper
-            Bson filter = Filters.eq("_id", firstNewspaper.getObjectId("_id"));
-            Bson update = Updates.push("articles.0.readarticle", readArticleDoc);
-
-            long modifiedCount = newspapersCollection.updateOne(filter, update).getModifiedCount();
-
-            if (modifiedCount > 0) {
-                System.out.println("✅ Rating añadido correctamente");
-                return 1;
+            if (existingRatingIndex != -1) {
+                log.info("El reader ya tiene un rating en este artículo. Actualizando...");
+                readarticles.set(existingRatingIndex, readArticleDoc);
             } else {
-                System.err.println("❌ No se pudo añadir el rating");
-                return 0;
+                readarticles.add(readArticleDoc);
             }
+
+            targetArticle.put("readarticle", readarticles);
+            articles.set(articleIndex, targetArticle);
+            targetNewspaper.put("articles", articles);
+
+            Document query = new Document("_id", targetNewspaper.getObjectId("_id"));
+            long modifiedCount = newspapersCollection.replaceOne(query, targetNewspaper).getModifiedCount();
+
+            if (modifiedCount == 0) {
+                log.warn("ninguna fila modifica del ReadArticle");
+                return -1;
+            }
+
+            if (existingRatingIndex != -1) {
+                log.info("Rating actualizado correctamente");
+            } else {
+                log.info("Rating añadido correctamente");
+            }
+
+            return 1;
 
         } catch (Exception e) {
-            System.err.println("❌ Error al añadir rating: " + e.getMessage());
-            e.printStackTrace();
-            return 0;
+            log.error("Error al añadir rating: " + e.getMessage(), e);
+            return -1;
         }
     }
 
     @Override
-    public void update(ReadArticleEntity readArticle) {
+    public void update(ReadArticleEntity readArticle, String articleDescription) {
         if (readArticle == null || readArticle.getIdReader() == null) {
-            System.err.println("❌ ReadArticle inválido");
+            log.warn("ReadArticle inválido");
+            return;
+        }
+
+        if (articleDescription == null || articleDescription.trim().isEmpty()) {
+            log.warn("Article description inválida");
             return;
         }
 
         try {
             MongoCollection<Document> newspapersCollection = database.getCollection("Newspapers");
+            Document targetNewspaper = null;
+            int articleIndex = -1;
+            int ratingIndex = -1;
 
-            // Buscar el documento que contiene el rating del reader
-            Bson filter = Filters.elemMatch("articles",
-                    Filters.elemMatch("readarticle",
-                            Filters.eq("_idReader", readArticle.getIdReader())));
+            try (MongoCursor<Document> cursor = newspapersCollection.find().iterator()) {
+                while (cursor.hasNext()) {
+                    Document newspaper = cursor.next();
+                    List<Document> articles = newspaper.getList("articles", Document.class);
 
-            Document newspaper = newspapersCollection.find(filter).first();
+                    if (articles != null) {
+                        for (int i = 0; i < articles.size(); i++) {
+                            Document article = articles.get(i);
+                            String desc = article.getString("description");
 
-            if (newspaper == null) {
-                System.err.println("❌ Rating no encontrado para este reader");
-                return;
+                            if (articleDescription.equals(desc)) {
+                                List<Document> readarticles = article.getList("readarticle", Document.class);
+                                if (readarticles != null) {
+                                    for (int j = 0; j < readarticles.size(); j++) {
+                                        Document ra = readarticles.get(j);
+                                        if (readArticle.getIdReader().equals(ra.getObjectId("_idReader"))) {
+                                            targetNewspaper = newspaper;
+                                            articleIndex = i;
+                                            ratingIndex = j;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                            if (targetNewspaper != null) break;
+                        }
+                    }
+                    if (targetNewspaper != null) break;
+                }
             }
 
-            // Actualizar el rating usando el operador posicional $
-            Bson updateFilter = Filters.and(
-                    Filters.eq("_id", newspaper.getObjectId("_id")),
-                    Filters.eq("articles.readarticle._idReader", readArticle.getIdReader())
-            );
+            if (targetNewspaper == null || articleIndex == -1 || ratingIndex == -1) {
+                log.warn("Rating no encontrado para este reader en el artículo: " + articleDescription);
+                return;
+            }
+            List<Document> articles = targetNewspaper.getList("articles", Document.class);
+            Document targetArticle = articles.get(articleIndex);
+            List<Document> readarticles = targetArticle.getList("readarticle", Document.class);
+            Document targetRating = readarticles.get(ratingIndex);
+            targetRating.put("rating", readArticle.getRating());
+            readarticles.set(ratingIndex, targetRating);
+            targetArticle.put("readarticle", readarticles);
+            articles.set(articleIndex, targetArticle);
+            targetNewspaper.put("articles", articles);
+            Document query = new Document("_id", targetNewspaper.getObjectId("_id"));
+            newspapersCollection.replaceOne(query, targetNewspaper);
 
-            Bson update = Updates.set("articles.$[].readarticle.$[elem].rating", readArticle.getRating());
-
-            // Usar arrayFilters para actualizar el elemento específico
-            newspapersCollection.updateOne(
-                    updateFilter,
-                    update,
-                    new com.mongodb.client.model.UpdateOptions()
-                            .arrayFilters(List.of(Filters.eq("elem._idReader", readArticle.getIdReader())))
-            );
-
-            System.out.println("✅ Rating modificado correctamente");
+            log.info("Rating modificado correctamente");
 
         } catch (Exception e) {
-            System.err.println("❌ Error al modificar rating: " + e.getMessage());
-            e.printStackTrace();
+            log.error("Error al modificar rating: " + e.getMessage(), e);
         }
     }
 
     @Override
-    public boolean delete(ReadArticleEntity readArticle) {
+    public boolean delete(ReadArticleEntity readArticle, String articleDescription) {
         if (readArticle == null || readArticle.getIdReader() == null) {
-            System.err.println("❌ ReadArticle inválido");
+            log.warn("ReadArticle inválido");
+            return false;
+        }
+
+        if (articleDescription == null || articleDescription.trim().isEmpty()) {
+            log.warn("Article description inválida");
             return false;
         }
 
         try {
             MongoCollection<Document> newspapersCollection = database.getCollection("Newspapers");
+            Document targetNewspaper = null;
+            int articleIndex = -1;
+            int ratingIndex = -1;
 
-            // Buscar el documento que contiene el rating del reader
-            Bson filter = Filters.elemMatch("articles",
-                    Filters.elemMatch("readarticle",
-                            Filters.eq("_idReader", readArticle.getIdReader())));
+            try (MongoCursor<Document> cursor = newspapersCollection.find().iterator()) {
+                while (cursor.hasNext()) {
+                    Document newspaper = cursor.next();
+                    List<Document> articles = newspaper.getList("articles", Document.class);
 
-            Document newspaper = newspapersCollection.find(filter).first();
+                    if (articles != null) {
+                        for (int i = 0; i < articles.size(); i++) {
+                            Document article = articles.get(i);
+                            String desc = article.getString("description");
 
-            if (newspaper == null) {
-                System.err.println("❌ Rating no encontrado para este reader");
+                            if (articleDescription.equals(desc)) {
+                                List<Document> readarticles = article.getList("readarticle", Document.class);
+                                if (readarticles != null) {
+                                    for (int j = 0; j < readarticles.size(); j++) {
+                                        Document ra = readarticles.get(j);
+                                        if (readArticle.getIdReader().equals(ra.getObjectId("_idReader"))) {
+                                            targetNewspaper = newspaper;
+                                            articleIndex = i;
+                                            ratingIndex = j;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                            if (targetNewspaper != null) break;
+                        }
+                    }
+                    if (targetNewspaper != null) break;
+                }
+            }
+
+            if (targetNewspaper == null || articleIndex == -1 || ratingIndex == -1) {
+                log.warn("Rating no encontrado para este reader en el artículo: " + articleDescription);
                 return false;
             }
 
-            // Eliminar el rating del array usando $pull
-            Bson updateFilter = Filters.eq("_id", newspaper.getObjectId("_id"));
-            Bson update = Updates.pull("articles.$[].readarticle",
-                    Filters.eq("_idReader", readArticle.getIdReader()));
-
-            long modifiedCount = newspapersCollection.updateOne(updateFilter, update).getModifiedCount();
+            List<Document> articles = targetNewspaper.getList("articles", Document.class);
+            Document targetArticle = articles.get(articleIndex);
+            List<Document> readarticles = targetArticle.getList("readarticle", Document.class);
+            readarticles.remove(ratingIndex);
+            targetArticle.put("readarticle", readarticles);
+            articles.set(articleIndex, targetArticle);
+            targetNewspaper.put("articles", articles);
+            Document query = new Document("_id", targetNewspaper.getObjectId("_id"));
+            long modifiedCount = newspapersCollection.replaceOne(query, targetNewspaper).getModifiedCount();
 
             if (modifiedCount > 0) {
-                System.out.println("✅ Rating eliminado correctamente");
+                log.info("Rating eliminado correctamente");
                 return true;
             } else {
-                System.err.println("❌ No se pudo eliminar el rating");
+                log.warn("No se pudo eliminar el rating");
                 return false;
             }
 
         } catch (Exception e) {
-            System.err.println("❌ Error al eliminar rating: " + e.getMessage());
-            e.printStackTrace();
+            log.error("Error al eliminar rating: " + e.getMessage(), e);
             return false;
         }
     }

@@ -10,8 +10,6 @@ import java.util.Scanner;
 
 public class mainMenu {
     public static void main(String[] args) {
-
-        //siempre hay que inicializar con el try
         try {
             SeContainerInitializer initializer = SeContainerInitializer.newInstance();
             SeContainer container = initializer.initialize();
@@ -20,7 +18,7 @@ public class mainMenu {
             NewspaperUI newspaperUI = container.select(NewspaperUI.class).get();
             ReaderUI readerUI = container.select(ReaderUI.class).get();
             ReadArticleUI readActUI = container.select(ReadArticleUI.class).get();
-//            TypeUI typeUI = container.select(TypeUI.class).get();
+            TypeUI typeUI = container.select(TypeUI.class).get();
 
 
 
@@ -102,9 +100,9 @@ public class mainMenu {
                     case 11:
                         readActUI.deleteRating();
                         break;
-//                    case 12:
-//                        typeUI.getAllTypes();
-//                        break;
+                    case 12:
+                        typeUI.getAllTypes();
+                        break;
                     case 13:
                         readerUI.addReader();
                         break;

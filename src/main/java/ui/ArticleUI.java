@@ -25,9 +25,9 @@ public class ArticleUI {
 
     public void getArticles() {
         List<ArticleDTO> articles = articleService.getAllArticles();
-        System.out.println("\n📰 ═══════════ TODOS LOS ARTÍCULOS ═══════════");
+        System.out.println("\n ═══════════ TODOS LOS ARTICULOS ═══════════");
         if (articles.isEmpty()) {
-            System.out.println("No hay artículos registrados.");
+            System.out.println("No hay articulos registrados.");
         } else {
             for (ArticleDTO a : articles) {
                 System.out.println(a.toString());
@@ -36,34 +36,34 @@ public class ArticleUI {
     }
 
     public void save() {
-        System.out.println("\n➕ ═══════════ AÑADIR ARTÍCULO ═══════════");
+        System.out.println("\n═══════════ AÑADIR ARTICULO ═══════════");
 
-        System.out.println("\n Periódicos :");
+        System.out.println("\n Periodicos :");
         List<NewspaperDTO> newspapers = newspaperService.getAllNewspapers();
 
         if (newspapers.isEmpty()) {
-            System.out.println("❌ No hay periódicos disponibles. Crea un periódico primero.");
+            System.out.println("No hay periodicos disponibles. Crea un periodico primero");
             return;
         }
 
         int index = 1;
         for (NewspaperDTO newspaper : newspapers) {
-            System.out.printf("%d. %s (ID: %s)\n", index++, newspaper.getName(), newspaper.getId());
+            System.out.println(index++ + ". " + newspaper.getName() + " (ID: " + newspaper.getId() + ")");
         }
 
-        System.out.print("\nSelecciona el número del periódico: ");
+        System.out.print("\nSelecciona el numero del periodico: ");
         int selection = Integer.parseInt(scanner.nextLine());
 
         if (selection < 1 || selection > newspapers.size()) {
-            System.out.println("Selección inválida");
+            System.out.println("Seleccion invalida");
             return;
         }
 
         String newspaperName = newspapers.get(selection - 1).getName();
 
-        System.out.print("Descripción del artículo: ");
+        System.out.print("Descripcion del articulo: ");
         String description = scanner.nextLine();
-        System.out.print("Tipo (Sports, Politics, Noticias, etc.): ");
+        System.out.print("Tipo (Sports,Noticias): ");
         String type = scanner.nextLine();
 
         ArticleEntity newArticle = ArticleEntity.builder()
@@ -73,37 +73,37 @@ public class ArticleUI {
 
         int result = articleService.save(newspaperName, newArticle);
         if (result > 0) {
-            System.out.println("Artículo añadido correctamente al periódico '" + newspaperName + "'");
+            System.out.println("Articulo añadido correctamente al periodico '" + newspaperName + "'");
         } else {
-            System.out.println("Error: No se pudo añadir el artículo. Verifica el nombre del periódico.");
+            System.out.println("Error: No se pudo añadir el articulo. Verifica el nombre del periodico.");
         }
     }
 
     public void update() {
-        System.out.println("\n✏️ ═══════════ ACTUALIZAR ARTÍCULO ═══════════");
+        System.out.println("\n═══════════ ACTUALIZAR ARTICULO ═══════════");
         List<ArticleDTO> articles = articleService.getAllArticles();
         if (articles.isEmpty()) {
-            System.out.println("No hay artículos disponibles para actualizar.");
+            System.out.println("No hay articulo disponibles para actualizar.");
             return;
         }
 
-        System.out.println("\nArtículos disponibles:");
+        System.out.println("\nArticulo disponibles:");
         int index = 1;
         for (ArticleDTO article : articles) {
-            System.out.printf("%d. %s - Tipo: %s\n", index++, article.getDescription(), article.getType());
+            System.out.println(index++ + ". " + article.getDescription() + " - Tipo: " + article.getType());
         }
 
         System.out.print("\nSelecciona el número del artículo a actualizar: ");
         int selection = Integer.parseInt(scanner.nextLine());
 
         if (selection < 1 || selection > articles.size()) {
-            System.out.println("Selección inválida");
+            System.out.println("Seleccion invalida");
             return;
         }
 
         String currentDescription = articles.get(selection - 1).getDescription();
 
-        System.out.print("Nuevo tipo (Sports, Politics, Noticias, etc.): ");
+        System.out.print("Nuevo tipo (Sports, Noticias): ");
         String newType = scanner.nextLine();
 
         ArticleEntity updatedArticle = ArticleEntity.builder()
@@ -112,89 +112,41 @@ public class ArticleUI {
                 .build();
 
         articleService.update(updatedArticle);
-        System.out.println("Artículo actualizado correctamente");
+        System.out.println("Articulo actualizado correctamente");
     }
 
-    // 4. Delete Article
     public void delete() {
-        System.out.println("\n🗑️ ═══════════ ELIMINAR ARTÍCULO ═══════════");
+        System.out.println("\n═══════════ ELIMINAR ARTICULO ═══════════");
 
         List<ArticleDTO> articles = articleService.getAllArticles();
         if (articles.isEmpty()) {
-            System.out.println("No hay artículos registrados.");
+            System.out.println("No hay articulos registrados.");
             return;
         }
 
-        System.out.println("\n----- Artículos disponibles -----");
+        System.out.println("\n----- Articulos disponibles -----");
         for (int i = 0; i < articles.size(); i++) {
             System.out.println((i + 1) + ". " + articles.get(i).getDescription() + " (" + articles.get(i).getType() + ")");
         }
 
-        System.out.print("\nSeleccione el número del artículo a eliminar: ");
+        System.out.print("\nSeleccione el número del articulo a eliminar: ");
         int selection = Integer.parseInt(scanner.nextLine());
 
         if (selection < 1 || selection > articles.size()) {
-            System.out.println("Selección inválida");
+            System.out.println("Seleccion invalida");
             return;
         }
 
         String description = articles.get(selection - 1).getDescription();
 
-        System.out.print("Estas seguro de eliminar el artículo '" + description + "'? (s/n): ");
+        System.out.print("Estas seguro de eliminar el articulo '" + description + "'? (s/n): ");
         String respuesta = scanner.nextLine();
         boolean confirmation = respuesta.equalsIgnoreCase("s");
 
         if (articleService.delete(description, confirmation)) {
-            System.out.println("Artículo eliminado correctamente");
+            System.out.println("Articulo eliminado correctamente");
         } else {
-            System.out.println("No se pudo eliminar el artículo");
+            System.out.println("No se pudo eliminar el articulo");
         }
     }
-
-//    // 9. Add rating to an Article
-//    public void addRating() throws ArticleNotFoundException {
-//        System.out.println("\n⭐ ═══════════ AÑADIR VALORACIÓN ═══════════");
-//        System.out.print("ID del periódico: ");
-//        String newspaperId = scanner.nextLine();
-//        System.out.print("Índice del artículo (0, 1, 2...): ");
-//        int articleIndex = Integer.parseInt(scanner.nextLine());
-//        System.out.print("ID del lector: ");
-//        int readerId = Integer.parseInt(scanner.nextLine());
-//        System.out.print("Valoración (1-5): ");
-//        int rating = Integer.parseInt(scanner.nextLine());
-//
-//        articleService.addRating(newspaperId, articleIndex, readerId, rating);
-//        System.out.println("✅ Valoración añadida correctamente");
-//    }
-//
-//    // 10. Modify rating of an Article
-//    public void modifyRating() throws ArticleNotFoundException {
-//        System.out.println("\n✏️ ═══════════ MODIFICAR VALORACIÓN ═══════════");
-//        System.out.print("ID del periódico: ");
-//        String newspaperId = scanner.nextLine();
-//        System.out.print("Índice del artículo (0, 1, 2...): ");
-//        int articleIndex = Integer.parseInt(scanner.nextLine());
-//        System.out.print("ID del lector: ");
-//        int readerId = Integer.parseInt(scanner.nextLine());
-//        System.out.print("Nueva valoración (1-5): ");
-//        int rating = Integer.parseInt(scanner.nextLine());
-//
-//        articleService.modifyRating(newspaperId, articleIndex, readerId, rating);
-//        System.out.println("✅ Valoración modificada correctamente");
-//    }
-//
-//    // 11. Delete rating of an Article
-//    public void deleteRating() throws ArticleNotFoundException {
-//        System.out.println("\n🗑️ ═══════════ ELIMINAR VALORACIÓN ═══════════");
-//        System.out.print("ID del periódico: ");
-//        String newspaperId = scanner.nextLine();
-//        System.out.print("Índice del artículo (0, 1, 2...): ");
-//        int articleIndex = Integer.parseInt(scanner.nextLine());
-//        System.out.print("ID del lector: ");
-//        int readerId = Integer.parseInt(scanner.nextLine());
-//
-//        articleService.deleteRating(newspaperId, articleIndex, readerId);
-//        System.out.println("✅ Valoración eliminada correctamente");
-//    }
-
 }

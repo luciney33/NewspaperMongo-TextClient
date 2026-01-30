@@ -2,7 +2,6 @@ package dao.mapper;
 
 import dao.model.ReadArticleEntity;
 import org.bson.Document;
-import org.bson.types.ObjectId;
 
 public class ReadArticleEntityMapper {
 

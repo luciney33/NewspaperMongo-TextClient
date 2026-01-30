@@ -3,7 +3,6 @@ package dao.repository;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
-import dao.CredentialRepository;
 import dao.ReaderRepository;
 import dao.mapper.ReaderEntityMapper;
 import dao.model.CredentialEntity;
@@ -25,18 +24,15 @@ import java.util.List;
 public class ReaderRepositoryImp implements ReaderRepository {
     private MongoCollection<Document> collection;
     private MongoDatabase database;
-    private CredentialRepository credentialRepository;
     private DBconnection dbConnection;
 
     public ReaderRepositoryImp() {
     }
 
     @Inject
-    public ReaderRepositoryImp(MongoCollection<Document> collection, MongoDatabase database,
-                               CredentialRepository credentialRepository, DBconnection dbConnection) {
+    public ReaderRepositoryImp(MongoCollection<Document> collection, MongoDatabase database,DBconnection dbConnection) {
         this.collection = collection;
         this.database = database;
-        this.credentialRepository = credentialRepository;
         this.dbConnection = dbConnection;
     }
 
@@ -120,15 +116,12 @@ public class ReaderRepositoryImp implements ReaderRepository {
         ObjectId readerId = null;
 
         try {
-            // 1. Guardar el reader en MongoDB primero
             Document readerDoc = ReaderEntityMapper.entityToDocument(reader);
             collection.insertOne(readerDoc);
 
-            // 2. Obtener el ObjectId generado
             readerId = readerDoc.getObjectId("_id");
-            System.out.println("✅ Reader guardado correctamente en MongoDB con ID: " + readerId);
+            System.out.println("Reader guardado correctamente con ID: " + readerId);
 
-            // 3. Si hay confirmación y credenciales, guardar en MySQL
             if (confirmation && credential != null &&
                 credential.getUsername() != null && !credential.getUsername().isEmpty() &&
                 credential.getPassword() != null && !credential.getPassword().isEmpty()) {
@@ -138,53 +131,45 @@ public class ReaderRepositoryImp implements ReaderRepository {
 
                     try (PreparedStatement psReader = con.prepareStatement(Query.InsertReader);
                          PreparedStatement psCredential = con.prepareStatement(Query.InsertCredential)) {
-
-                        // Convertir ObjectId a int para MySQL (usando hashCode)
                         int idReaderForMySQL = readerId.hashCode();
-
-                        // Primero insertar el reader en la tabla Reader
                         psReader.setInt(1, idReaderForMySQL);
                         psReader.setString(2, reader.getName());
                         psReader.setString(3, reader.getDob());
                         psReader.executeUpdate();
-
-                        // Luego insertar las credenciales
                         psCredential.setString(1, credential.getUsername());
                         psCredential.setString(2, credential.getPassword());
                         psCredential.setInt(3, idReaderForMySQL);
                         psCredential.executeUpdate();
 
                         con.commit();
-                        System.out.println("✅ Reader y credenciales guardados correctamente en MySQL con id_reader: " + idReaderForMySQL);
+                        System.out.println("Reader y credenciales guardados correctamente: " + idReaderForMySQL);
 
                     } catch (SQLException e) {
                         con.rollback();
-                        System.err.println("⚠ Error al guardar en MySQL: " + e.getMessage());
-                        System.out.println("ℹ El reader se guardó correctamente en MongoDB pero no se guardó en MySQL");
+                        System.err.println("Error al guardar en MySQL: " + e.getMessage());
+                        System.out.println("El reader se guardó correctamente");
                     } finally {
                         con.setAutoCommit(true);
                     }
 
                 } catch (Exception mysqlError) {
-                    System.out.println("⚠ MySQL no disponible. Reader guardado solo en MongoDB");
+                    System.out.println("MySQL no disponible. Reader guardado ");
                 }
             } else {
-                System.out.println("ℹ Reader creado sin credenciales en MySQL");
+                System.out.println("Reader creado sin credenciales");
             }
 
             return 1;
 
         } catch (Exception e) {
-            System.err.println("❌ Error al guardar reader: " + e.getMessage());
+            System.err.println("Error al guardar reader: " + e.getMessage());
             e.printStackTrace();
-
-            // Si falló MongoDB, intentar eliminar el reader si se llegó a crear
             if (readerId != null) {
                 try {
                     collection.deleteOne(new Document("_id", readerId));
-                    System.out.println("⚠ Rollback: Reader eliminado de MongoDB");
+                    System.out.println("Reader eliminado");
                 } catch (Exception rollbackError) {
-                    System.err.println("❌ Error en rollback: " + rollbackError.getMessage());
+                    System.err.println("Error :  " + rollbackError.getMessage());
                 }
             }
 
@@ -195,69 +180,62 @@ public class ReaderRepositoryImp implements ReaderRepository {
     @Override
     public int delete(ReaderEntity reader, boolean confirmation) {
         if (!confirmation) {
-            System.out.println("⚠ Operación de eliminación cancelada por el usuario");
+            System.out.println("Operación de eliminación cancelada por el usuario");
             return 0;
         }
 
         if (reader == null || reader.getId() == null) {
-            System.err.println("❌ Reader inválido para eliminar");
+            System.err.println("Reader inválido para eliminar");
             return 0;
         }
 
         try {
-            // 1. Eliminar de MongoDB primero
             Document query = new Document("_id", reader.getId());
             long deletedCount = collection.deleteOne(query).getDeletedCount();
 
             if (deletedCount == 0) {
-                System.err.println("❌ Reader no encontrado en MongoDB");
+                System.err.println("Reader no encontrado");
                 return 0;
             }
 
-            System.out.println("✅ Reader eliminado correctamente de MongoDB con ID: " + reader.getId());
-
-            // 2. Intentar eliminar de MySQL si existe
+            System.out.println("Reader eliminado correctamente con ID: " + reader.getId());
             try (Connection con = dbConnection.getConnection()) {
                 con.setAutoCommit(false);
 
                 try (PreparedStatement psCredential = con.prepareStatement(Query.DeleteCredential);
                      PreparedStatement psReader = con.prepareStatement(Query.DeleteReader)) {
-
-                    // Convertir ObjectId a int para MySQL (usando hashCode)
                     int idReaderForMySQL = reader.getId().hashCode();
 
-                    // Primero eliminar las credenciales (por la FK)
                     psCredential.setInt(1, idReaderForMySQL);
                     int credentialsDeleted = psCredential.executeUpdate();
 
-                    // Luego eliminar el reader
                     psReader.setInt(1, idReaderForMySQL);
                     int readerDeleted = psReader.executeUpdate();
 
                     con.commit();
 
                     if (credentialsDeleted > 0 || readerDeleted > 0) {
-                        System.out.println("✅ Reader y credenciales eliminados de MySQL");
+                        System.out.println("Reader y credenciales eliminados");
                     } else {
-                        System.out.println("ℹ Reader no existía en MySQL");
+                        System.out.println("Reader no existía");
                     }
 
                 } catch (SQLException e) {
                     con.rollback();
-                    System.err.println("⚠ Error al eliminar de MySQL: " + e.getMessage());
-                    System.out.println("ℹ El reader se eliminó de MongoDB pero no de MySQL");
+                    System.err.println("Error al elimina: " + e.getMessage());
+                    System.out.println("El reader se eliminó");
                 } finally {
                     con.setAutoCommit(true);
                 }
 
             } catch (Exception mysqlError) {
-                System.out.println("⚠ MySQL no disponible. Reader eliminado solo de MongoDB");
+                System.out.println("MySQL no disponible. Reader eliminado");
             }
 
             return 1;
 
         } catch (Exception e) {
-            System.err.println("❌ Error al eliminar reader: " + e.getMessage());
+            System.err.println("Error al eliminar reader: " + e.getMessage());
             e.printStackTrace();
             return 0;
         }
